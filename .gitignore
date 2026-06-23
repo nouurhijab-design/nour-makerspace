@@ -1,0 +1,12 @@
+# Temporäre Dateien
+*.tmp
+*.bak
+~$*
+
+# System-Dateien
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Komprimierte Archive (nur temporäre)
+files.zip

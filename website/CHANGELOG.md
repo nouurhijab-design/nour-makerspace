@@ -4,6 +4,12 @@ Geführt vom Creative-/Dev-Team (Claude). Neueste Einträge oben.
 
 ## 2026-07-06
 
+### Echte Gesichter für Identifikation (strategisch)
+- **Entscheidung:** Kundinnen müssen sich wiedererkennen. Aus der sauberen (textfreien) Version des Gruppenbilds wurden vier Gesichts-Porträts freigestellt (`face-mauve/espresso/taupe/salbei.jpg`, Python/Pillow) und als neue Sektion „Vier Frauen · Vier Töne — Welche HIMA sind Sie?" auf der Startseite eingebaut (vor Farbwelten). Jedes Porträt verlinkt in die passende Farbwelt.
+- **Warum:** Echte, diverse Gesichter auf warmer Haut schaffen Identifikation und Vertrauen — der stärkste Conversion-Hebel für eine Fashion-Maison (Register Skims/COS). Jede Frau steht für einen Farbcharakter.
+- **Hero-Upgrade:** Die eingebrannte Wortmarke ist in der sauberen Bildversion weg. Damit konnte die frühere Notlösung (visually-hidden H1) rückgängig gemacht werden: Hero trägt jetzt wieder echte, responsive HTML-Typografie (Overline, H1, Shelter Line, Sub, CTAs) über dem Gruppenbild — barrierefrei und lokalisierbar.
+- **SEO/Social:** `<head>` um Open Graph, Twitter Card, Canonical und `theme-color` ergänzt.
+
 ### Kampagnen-Hero (hero-gruppe.jpg)
 - **Entscheidung:** Startseiten-Hero von einem einzelnen Salbei-Drapé (`drape-salbei-02.jpg`) auf das Vier-Modelle-Gruppenbild (`hero-gruppe.jpg`) umgestellt.
 - **Warum:** Das Gruppenbild zeigt vier Farbwelten (Mauve, Braun, Taupe, Salbei) an echten Trägerinnen und kommuniziert Vielfalt + Produkt + Stimmung in einem Bild — Register von Jacquemus/Loewe. Stärkerer erster Eindruck, höhere emotionale Bindung.

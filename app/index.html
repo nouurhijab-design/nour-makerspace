@@ -1,0 +1,949 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#2C1A10">
+<title>HIMA — Die App der Maison</title>
+<meta name="description" content="Die HIMA-App: Kollektion, persönliche Stoffberatung mit Amira, Farbpass-Fragebogen und Ihre Merkliste — die Maison de Modestie für unterwegs.">
+<link rel="icon" href="../website/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,400&family=Playfair+Display:wght@400;500&family=Amiri:wght@400;700&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  /* ============================================================
+     HIMA App v2.0 — Screens statt Seiten, aber echtes App-Gefühl:
+     Stack-Navigation mit Slide-Übergängen, Tab-Bar, Amira-Demo.
+     Palette & Typografie gemäß hima-brand Skill (bindend).
+     Amira läuft im Demo-Modus — kein API-Key im Client (Regel 6.2).
+     ============================================================ */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --ivory:    #F4EFE6;
+    --ivory-dk: #EDE6D8;
+    --espresso: #2C1A10;
+    --sand:     #DCCCB6;
+    --taupe:    #A58F7A;
+    --taupe-tx: #7A654F;
+    --charcoal: #232323;
+    --gold:     #B8965A;
+    --gold-lt:  #C7A977;
+    --serif:    'Cormorant Garamond', Georgia, serif;
+    --display:  'Playfair Display', Georgia, serif;
+    --arabic:   'Amiri', serif;
+    --sans:     'Inter', system-ui, sans-serif;
+    --safe-top: env(safe-area-inset-top, 0px);
+    --safe-bot: env(safe-area-inset-bottom, 0px);
+    --tab-h:    66px;
+    --ease:     cubic-bezier(.22,.61,.36,1);
+  }
+
+  html, body { height: 100%; overflow: hidden; background: var(--espresso); }
+  body { font-family: var(--sans); font-weight: 300; color: var(--charcoal); -webkit-font-smoothing: antialiased; }
+
+  #app {
+    height: 100%; max-width: 430px; margin: 0 auto;
+    background: var(--ivory); position: relative; overflow: hidden;
+    display: flex; flex-direction: column;
+    box-shadow: 0 0 90px rgba(0,0,0,.55);
+  }
+
+  :focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+
+  /* ── Typo ── */
+  .overline { font-size: 10.5px; letter-spacing: .28em; text-transform: uppercase; color: var(--taupe-tx); font-weight: 400; }
+  h1, h2, h3 { font-family: var(--display); font-weight: 500; color: var(--espresso); line-height: 1.3; }
+  .shelter-line { width: 56px; height: 1px; background: var(--gold); border: 0; margin: 16px 0; display: block; }
+
+  /* ── Top-Bar ── */
+  #topbar {
+    flex-shrink: 0; z-index: 60;
+    padding: calc(var(--safe-top) + 12px) 18px 12px;
+    background: rgba(244,239,230,.96); backdrop-filter: blur(14px);
+    border-bottom: 1px solid var(--sand);
+    display: grid; grid-template-columns: 44px 1fr 44px; align-items: center;
+  }
+  #topbar .tb-side { width: 44px; height: 40px; display: flex; align-items: center; }
+  #topbar button {
+    background: none; border: 0; cursor: pointer; color: var(--espresso);
+    width: 44px; height: 40px; display: flex; align-items: center; justify-content: center;
+    font-size: 13px;
+  }
+  .tb-logo { text-align: center; }
+  .tb-wordmark {
+    font-family: var(--display); font-size: 19px; font-weight: 500;
+    letter-spacing: .28em; padding-left: .28em; color: var(--espresso);
+    position: relative; display: inline-block; line-height: 1.15;
+  }
+  .tb-wordmark::before { content: ''; position: absolute; left: .03em; right: .28em; top: -4px; height: 1px; background: var(--gold); }
+  .tb-arabic { font-family: var(--arabic); font-size: 11px; color: var(--gold); direction: rtl; line-height: 1.2; display: block; }
+  #tb-title { font-family: var(--display); font-size: 17px; letter-spacing: .1em; color: var(--espresso); display: none; }
+
+  /* ── Screens ── */
+  #screens { flex: 1; position: relative; overflow: hidden; }
+  .screen {
+    position: absolute; inset: 0; background: var(--ivory);
+    overflow-y: auto; -webkit-overflow-scrolling: touch;
+    padding-bottom: calc(var(--tab-h) + var(--safe-bot) + 24px);
+    display: none;
+  }
+  .screen.active { display: block; }
+  .screen.slide-in { animation: slideIn .38s var(--ease); }
+  .screen.slide-back { animation: slideBack .38s var(--ease); }
+  @keyframes slideIn  { from { transform: translateX(60px); opacity: 0; } to { transform: none; opacity: 1; } }
+  @keyframes slideBack{ from { transform: translateX(-40px); opacity: 0; } to { transform: none; opacity: 1; } }
+  @media (prefers-reduced-motion: reduce) { .screen.slide-in, .screen.slide-back { animation: none; } }
+
+  .pad { padding: 22px 20px; }
+
+  /* ── Tab-Bar ── */
+  #tabbar {
+    flex-shrink: 0; z-index: 60;
+    display: flex; align-items: stretch;
+    background: rgba(244,239,230,.97); backdrop-filter: blur(14px);
+    border-top: 1px solid var(--sand);
+    height: calc(var(--tab-h) + var(--safe-bot));
+    padding-bottom: var(--safe-bot);
+  }
+  .tab-btn {
+    flex: 1; background: none; border: 0; cursor: pointer;
+    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px;
+    color: var(--taupe-tx); font-family: var(--sans); font-size: 9px;
+    letter-spacing: .16em; text-transform: uppercase; position: relative;
+  }
+  .tab-btn svg { width: 21px; height: 21px; }
+  .tab-btn[aria-current="true"] { color: var(--espresso); }
+  .tab-btn[aria-current="true"]::after {
+    content: ''; position: absolute; top: 0; left: 50%; transform: translateX(-50%);
+    width: 28px; height: 1.5px; background: var(--gold);
+  }
+  .tab-btn .tab-count {
+    position: absolute; top: 8px; right: calc(50% - 22px);
+    min-width: 15px; height: 15px; border-radius: 50%;
+    background: var(--gold); color: var(--espresso);
+    font-size: 9px; display: flex; align-items: center; justify-content: center; padding: 0 4px;
+  }
+  .tab-btn .tab-count:empty { display: none; }
+  .tab-amira {
+    flex: 1.15; position: relative;
+  }
+  .tab-amira .seal {
+    width: 46px; height: 46px; border-radius: 50%;
+    background: var(--espresso); color: var(--gold-lt);
+    display: flex; align-items: center; justify-content: center;
+    font-family: var(--display); font-size: 19px;
+    border: 1px solid var(--gold); margin-bottom: 2px;
+  }
+  .tab-amira[aria-current="true"] .seal { background: var(--gold); color: var(--espresso); border-color: var(--gold); }
+
+  /* ── Buttons ── */
+  .btn {
+    display: inline-block; text-align: center; cursor: pointer; text-decoration: none;
+    font-family: var(--sans); font-size: 11px; letter-spacing: .22em; text-transform: uppercase;
+    padding: 15px 26px; border: 1px solid var(--espresso); color: var(--espresso); background: transparent;
+    transition: all .3s var(--ease);
+  }
+  .btn.solid { background: var(--espresso); color: var(--ivory); }
+  .btn.block { display: block; width: 100%; }
+  .btn.gold { border-color: var(--gold); color: var(--espresso); }
+
+  /* ── Hero (Home) ── */
+  .hero-card { position: relative; overflow: hidden; }
+  .hero-card img { width: 100%; aspect-ratio: 4/5; object-fit: cover; display: block; }
+  .hero-card .hc-scrim { position: absolute; inset: 0; background: linear-gradient(to top, rgba(44,26,16,.62), rgba(44,26,16,0) 55%); }
+  .hero-card .hc-text { position: absolute; left: 20px; right: 20px; bottom: 22px; color: var(--ivory); }
+  .hero-card .hc-text .overline { color: var(--gold-lt); }
+  .hero-card h1 { color: var(--ivory); font-size: 27px; margin-top: 6px; }
+  .hero-card .btn { border-color: var(--ivory); color: var(--ivory); margin-top: 14px; padding: 12px 20px; }
+
+  /* ── Chips / Kategorien ── */
+  .chip-row { display: flex; gap: 8px; overflow-x: auto; padding: 4px 20px 8px; scrollbar-width: none; }
+  .chip-row::-webkit-scrollbar { display: none; }
+  .chip {
+    flex-shrink: 0; background: none; border: 1px solid var(--sand); cursor: pointer;
+    padding: 9px 16px; font-family: var(--sans); font-size: 10.5px;
+    letter-spacing: .18em; text-transform: uppercase; color: var(--espresso);
+  }
+  .chip[aria-pressed="true"] { background: var(--espresso); color: var(--ivory); border-color: var(--espresso); }
+
+  /* ── Produkt-Grid ── */
+  .pgrid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; padding: 8px 20px; }
+  .pcard { background: none; border: 0; padding: 0; text-align: left; cursor: pointer; font-family: var(--sans); }
+  .pcard img { width: 100%; aspect-ratio: 3/4; object-fit: cover; background: var(--ivory-dk); }
+  .pcard .pc-cat { font-size: 9px; letter-spacing: .2em; text-transform: uppercase; color: var(--taupe-tx); margin-top: 9px; }
+  .pcard .pc-name { font-family: var(--display); font-size: 15px; color: var(--espresso); margin-top: 3px; line-height: 1.35; }
+  .pcard .pc-price { font-family: var(--serif); font-size: 14.5px; color: var(--charcoal); margin-top: 2px; }
+
+  /* ── Sektionskarten (Home) ── */
+  .feature-card {
+    margin: 10px 20px; padding: 22px 20px;
+    background: var(--espresso); color: var(--ivory); position: relative; overflow: hidden;
+  }
+  .feature-card .overline { color: var(--gold-lt); }
+  .feature-card h3 { color: var(--ivory); font-size: 19px; margin-top: 6px; }
+  .feature-card p { font-family: var(--serif); font-size: 15.5px; color: rgba(244,239,230,.85); margin-top: 8px; }
+  .feature-card .btn { border-color: var(--gold-lt); color: var(--gold-lt); margin-top: 16px; padding: 11px 18px; font-size: 10px; }
+  .feature-card.light { background: var(--ivory-dk); color: var(--charcoal); }
+  .feature-card.light h3 { color: var(--espresso); }
+  .feature-card.light p { color: var(--charcoal); }
+  .feature-card.light .overline { color: var(--taupe-tx); }
+  .feature-card.light .btn { border-color: var(--espresso); color: var(--espresso); }
+
+  /* ── PDP ── */
+  #s-pdp img.pdp-img { width: 100%; aspect-ratio: 4/5; object-fit: cover; }
+  .pdp-thumbs { display: flex; gap: 8px; padding: 10px 20px 0; }
+  .pdp-thumbs button { background: none; border: 1px solid transparent; padding: 0; width: 64px; cursor: pointer; }
+  .pdp-thumbs button[aria-pressed="true"] { border-color: var(--gold); }
+  .pdp-thumbs img { width: 100%; aspect-ratio: 4/5; object-fit: cover; display: block; }
+  .pdp-body h1 { font-size: 24px; margin-top: 4px; }
+  .pdp-price { font-family: var(--serif); font-size: 21px; color: var(--espresso); margin-top: 10px; }
+  .pdp-price small { font-family: var(--sans); font-size: 11px; color: var(--taupe-tx); margin-left: 8px; letter-spacing: .04em; }
+  .pdp-desc { font-family: var(--serif); font-size: 16.5px; margin-top: 12px; line-height: 1.65; }
+  .pdp-note { font-size: 11.5px; color: var(--taupe-tx); margin-top: 12px; line-height: 1.6; }
+  details.acc { border-bottom: 1px solid var(--sand); }
+  details.acc:first-of-type { border-top: 1px solid var(--sand); }
+  details.acc summary {
+    list-style: none; cursor: pointer; display: flex; justify-content: space-between; align-items: center;
+    padding: 15px 0; font-size: 11px; letter-spacing: .2em; text-transform: uppercase; color: var(--espresso);
+  }
+  details.acc summary::-webkit-details-marker { display: none; }
+  details.acc summary::after { content: '+'; font-family: var(--serif); font-size: 18px; color: var(--gold); }
+  details.acc[open] summary::after { content: '–'; }
+  details.acc .acc-body { padding: 0 0 16px; font-size: 13.5px; line-height: 1.7; }
+  details.acc .acc-body ul { padding-left: 16px; }
+
+  /* ── Listen (Merkliste/Tasche) ── */
+  .list-item { display: grid; grid-template-columns: 64px 1fr auto; gap: 14px; align-items: center; padding: 14px 0; border-bottom: 1px solid var(--sand); }
+  .list-item img { width: 64px; aspect-ratio: 3/4; object-fit: cover; }
+  .list-item .li-name { font-family: var(--display); font-size: 15px; color: var(--espresso); }
+  .list-item .li-price { font-family: var(--serif); font-size: 14px; margin-top: 2px; }
+  .li-qty { display: inline-flex; align-items: center; gap: 9px; margin-top: 7px; }
+  .li-qty button { width: 24px; height: 24px; border: 1px solid var(--sand); background: none; cursor: pointer; color: var(--espresso); }
+  .li-x { background: none; border: 0; cursor: pointer; color: var(--taupe-tx); font-size: 10px; letter-spacing: .14em; text-transform: uppercase; }
+  .empty-note { font-family: var(--serif); font-size: 16.5px; color: var(--taupe-tx); text-align: center; padding: 48px 30px; }
+
+  /* ── Amira Chat ── */
+  #s-amira { display: none; flex-direction: column; }
+  #s-amira.active { display: flex; }
+  #amira-log { flex: 1; overflow-y: auto; padding: 18px 16px calc(var(--tab-h) + var(--safe-bot) + 130px); }
+  .msg { max-width: 84%; margin-bottom: 12px; padding: 13px 16px; font-size: 14.5px; line-height: 1.6; }
+  .msg.amira { background: var(--ivory-dk); color: var(--charcoal); border-left: 2px solid var(--gold); }
+  .msg.user { background: var(--espresso); color: var(--ivory); margin-left: auto; }
+  .msg .msg-who { font-size: 9px; letter-spacing: .2em; text-transform: uppercase; color: var(--taupe-tx); display: block; margin-bottom: 5px; }
+  .msg.user .msg-who { color: var(--gold-lt); }
+  .amira-badge {
+    text-align: center; font-size: 10px; letter-spacing: .18em; text-transform: uppercase;
+    color: var(--taupe-tx); padding: 10px 20px 2px;
+  }
+  #amira-sugg { display: flex; gap: 8px; overflow-x: auto; padding: 8px 16px; scrollbar-width: none; }
+  #amira-sugg::-webkit-scrollbar { display: none; }
+  #amira-input-row {
+    position: absolute; left: 0; right: 0; bottom: calc(var(--tab-h) + var(--safe-bot));
+    background: rgba(244,239,230,.98); border-top: 1px solid var(--sand);
+    padding: 10px 14px calc(10px);
+  }
+  #amira-form { display: flex; gap: 10px; }
+  #amira-text {
+    flex: 1; border: 1px solid var(--sand); background: #fff; border-radius: 0;
+    padding: 12px 14px; font-family: var(--serif); font-size: 16px; color: var(--charcoal);
+  }
+  #amira-text:focus { outline: none; border-color: var(--gold); }
+  #amira-send {
+    background: var(--espresso); color: var(--ivory); border: 0; cursor: pointer;
+    padding: 0 18px; font-size: 11px; letter-spacing: .16em; text-transform: uppercase;
+  }
+
+  /* ── Farbpass Quiz ── */
+  .quiz-q { padding: 20px; }
+  .quiz-opt {
+    display: block; width: 100%; text-align: left; cursor: pointer;
+    background: none; border: 1px solid var(--sand); padding: 16px 18px; margin-top: 10px;
+    font-family: var(--serif); font-size: 16.5px; color: var(--charcoal);
+    transition: all .25s var(--ease);
+  }
+  .quiz-opt:hover, .quiz-opt:focus-visible { border-color: var(--espresso); }
+  .quiz-progress { display: flex; gap: 6px; padding: 0 20px; }
+  .quiz-progress span { flex: 1; height: 2px; background: var(--sand); }
+  .quiz-progress span.done { background: var(--gold); }
+  .swatch-row { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 14px; }
+  .swatch { width: 38px; height: 38px; border-radius: 50%; border: 1px solid var(--sand); }
+
+  /* ── Onboarding ── */
+  #onboarding {
+    position: absolute; inset: 0; z-index: 100; background: var(--espresso);
+    display: flex; flex-direction: column; justify-content: flex-end;
+  }
+  #onboarding .ob-media { position: absolute; inset: 0; }
+  #onboarding .ob-media img { width: 100%; height: 100%; object-fit: cover; opacity: .55; }
+  #onboarding .ob-body {
+    position: relative; padding: 30px 26px calc(var(--safe-bot) + 34px);
+    background: linear-gradient(to top, rgba(44,26,16,.92), rgba(44,26,16,0));
+    color: var(--ivory);
+  }
+  #onboarding .tb-wordmark { color: var(--ivory); font-size: 26px; }
+  #onboarding .tb-wordmark::before { background: var(--gold-lt); }
+  #onboarding .ob-arabic { font-family: var(--arabic); color: var(--gold-lt); font-size: 15px; direction: rtl; margin-top: 4px; }
+  #onboarding h2 { color: var(--ivory); font-size: 24px; margin-top: 18px; }
+  #onboarding p { font-family: var(--serif); font-size: 16.5px; color: rgba(244,239,230,.88); margin-top: 10px; line-height: 1.6; }
+  #onboarding .ob-cta { display: flex; gap: 12px; margin-top: 24px; align-items: center; }
+  #onboarding .btn { border-color: var(--ivory); color: var(--ivory); }
+  #onboarding .ob-skip { background: none; border: 0; color: rgba(244,239,230,.65); cursor: pointer; font-size: 11px; letter-spacing: .18em; text-transform: uppercase; }
+
+  /* ── Toast ── */
+  #toast {
+    position: absolute; bottom: calc(var(--tab-h) + var(--safe-bot) + 18px); left: 50%;
+    transform: translate(-50%, 20px); z-index: 90;
+    background: var(--espresso); color: var(--ivory);
+    padding: 11px 22px; font-size: 10.5px; letter-spacing: .18em; text-transform: uppercase;
+    opacity: 0; pointer-events: none; transition: all .35s var(--ease); white-space: nowrap;
+  }
+  #toast.show { opacity: 1; transform: translate(-50%, 0); }
+
+  .section-label { padding: 26px 20px 12px; }
+  .divider-gold { width: 100%; border: 0; border-top: 1px solid var(--sand); margin: 18px 0; }
+
+  /* Profil-Liste */
+  .plist { border-top: 1px solid var(--sand); margin-top: 8px; }
+  .plist button, .plist a {
+    display: flex; justify-content: space-between; align-items: center; width: 100%;
+    background: none; border: 0; border-bottom: 1px solid var(--sand); cursor: pointer;
+    padding: 17px 20px; font-family: var(--sans); font-size: 12px; letter-spacing: .18em;
+    text-transform: uppercase; color: var(--espresso); text-decoration: none; text-align: left;
+  }
+  .plist .arrow { color: var(--gold); font-family: var(--serif); }
+</style>
+</head>
+<body>
+
+<div id="app">
+
+  <!-- ONBOARDING -->
+  <div id="onboarding" role="dialog" aria-label="Willkommen bei HIMA">
+    <div class="ob-media"><img id="ob-img" src="assets/img/drape-salbei-02.jpg" alt=""></div>
+    <div class="ob-body">
+      <span class="tb-wordmark">HIMA</span>
+      <p class="ob-arabic" lang="ar">حِمَى</p>
+      <div id="ob-slides">
+        <h2 id="ob-title">Willkommen in der Maison</h2>
+        <p id="ob-text">HIMA — der geschützte Ort. Kuratierte Hijabs und feine Stoffe, mit Ruhe entworfen und mit Sorgfalt geprüft.</p>
+      </div>
+      <div class="ob-cta">
+        <button type="button" class="btn" id="ob-next">Weiter</button>
+        <button type="button" class="ob-skip" id="ob-skip">Überspringen</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- TOP BAR -->
+  <header id="topbar">
+    <span class="tb-side">
+      <button type="button" id="tb-back" aria-label="Zurück" style="display: none;">
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M12.5 3.5 6 10l6.5 6.5" stroke="currentColor" stroke-width="1.3"/></svg>
+      </button>
+    </span>
+    <div class="tb-logo">
+      <span class="tb-wordmark" id="tb-logo-mark">HIMA</span>
+      <span class="tb-arabic" lang="ar">حِمَى</span>
+      <span id="tb-title"></span>
+    </div>
+    <span class="tb-side" style="justify-content: flex-end;">
+      <button type="button" id="tb-bag" aria-label="Tasche öffnen">
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M4 6.5h12l-.9 10a1.5 1.5 0 0 1-1.5 1.3H6.4a1.5 1.5 0 0 1-1.5-1.3L4 6.5Z" stroke="currentColor" stroke-width="1.1"/><path d="M7 8.5V5a3 3 0 0 1 6 0v3.5" stroke="currentColor" stroke-width="1.1"/></svg>
+      </button>
+    </span>
+  </header>
+
+  <!-- SCREENS -->
+  <div id="screens">
+
+    <!-- HOME -->
+    <section class="screen" id="s-home" aria-label="Startseite">
+      <div class="hero-card">
+        <img src="assets/img/drape-salbei-02.jpg" alt="Fein drapierter Hijab-Stoff in Salbei vor warmem Hintergrund">
+        <div class="hc-scrim" aria-hidden="true"></div>
+        <div class="hc-text">
+          <p class="overline">Maison de Modestie</p>
+          <h1>Die Kunst der leisen Eleganz</h1>
+          <button type="button" class="btn" data-nav="shop">Kollektion entdecken</button>
+        </div>
+      </div>
+
+      <div class="section-label">
+        <p class="overline">Kuratiert</p>
+        <h2 style="font-size: 20px; margin-top: 4px;">Die Auswahl der Maison</h2>
+      </div>
+      <div class="pgrid" id="home-grid"></div>
+
+      <div class="feature-card">
+        <p class="overline">Ihre Beraterin</p>
+        <h3>Fragen Sie Amira</h3>
+        <p>Welcher Stoff für welchen Tag? Welcher Ton zu Ihrem Teint? Amira kennt jede Qualität der Maison.</p>
+        <button type="button" class="btn" data-nav="amira">Gespräch beginnen</button>
+      </div>
+
+      <div class="feature-card light">
+        <p class="overline">Dein Ton</p>
+        <h3>Der Farbpass-Fragebogen</h3>
+        <p>Vier Fragen, ein Ergebnis: die Farbwelt, die Ihnen steht — als Grundlage für Ihren persönlichen Farbpass.</p>
+        <button type="button" class="btn" data-nav="farbpass">Fragebogen starten</button>
+      </div>
+
+      <div class="feature-card">
+        <p class="overline">Das Atelier</p>
+        <h3>Maghnatis — in Entwicklung</h3>
+        <p>Unser Signature-Magnetverschluss entsteht im MakerSpace Mönchengladbach. Kleine Serien, ehrliche Handarbeit.</p>
+        <a class="btn" href="mailto:nouurhijab@gmail.com?subject=Maghnatis%20—%20Warteliste">Auf die Warteliste</a>
+      </div>
+
+      <div class="section-label">
+        <p class="overline">Wissen</p>
+        <h2 style="font-size: 20px; margin-top: 4px;">Stoff &amp; Pflege</h2>
+      </div>
+      <div class="pad" style="padding-top: 0;">
+        <button type="button" class="btn block" data-nav="pflege">Zum Pflege-Guide</button>
+      </div>
+    </section>
+
+    <!-- SHOP -->
+    <section class="screen" id="s-shop" aria-label="Kollektion">
+      <div class="section-label">
+        <p class="overline">Die Kollektion</p>
+        <h2 style="font-size: 22px; margin-top: 4px;">Jede Qualität hat ihren Moment</h2>
+      </div>
+      <div class="chip-row" role="group" aria-label="Nach Kategorie filtern">
+        <button class="chip" type="button" data-kat="alle" aria-pressed="true">Alle</button>
+        <button class="chip" type="button" data-kat="Jersey" aria-pressed="false">Jersey</button>
+        <button class="chip" type="button" data-kat="Bamboo" aria-pressed="false">Bamboo</button>
+        <button class="chip" type="button" data-kat="Feine Stoffe" aria-pressed="false">Feine Stoffe</button>
+        <button class="chip" type="button" data-kat="Accessoires" aria-pressed="false">Accessoires</button>
+      </div>
+      <div class="pgrid" id="shop-grid"></div>
+    </section>
+
+    <!-- PDP -->
+    <section class="screen" id="s-pdp" aria-label="Produktdetail"></section>
+
+    <!-- AMIRA -->
+    <section class="screen" id="s-amira" aria-label="Amira — Ihre Beraterin">
+      <p class="amira-badge">Amira · Beraterin der Maison · Demo-Modus</p>
+      <div id="amira-log" role="log" aria-live="polite"></div>
+      <div id="amira-input-row">
+        <div id="amira-sugg"></div>
+        <form id="amira-form">
+          <label for="amira-text" class="visually-hidden" style="position:absolute;left:-9999px;">Ihre Nachricht an Amira</label>
+          <input type="text" id="amira-text" placeholder="Fragen Sie nach Stoff, Farbe, Pflege …" autocomplete="off">
+          <button type="submit" id="amira-send">Senden</button>
+        </form>
+      </div>
+    </section>
+
+    <!-- FARBPASS -->
+    <section class="screen" id="s-farbpass" aria-label="Farbpass-Fragebogen"></section>
+
+    <!-- MERKLISTE -->
+    <section class="screen" id="s-wish" aria-label="Merkliste">
+      <div class="section-label">
+        <p class="overline">Für später</p>
+        <h2 style="font-size: 22px; margin-top: 4px;">Ihre Merkliste</h2>
+      </div>
+      <div class="pad" id="wish-list" style="padding-top: 4px;"></div>
+    </section>
+
+    <!-- TASCHE -->
+    <section class="screen" id="s-bag" aria-label="Tasche">
+      <div class="section-label">
+        <p class="overline">Ihre Auswahl</p>
+        <h2 style="font-size: 22px; margin-top: 4px;">Die Tasche</h2>
+      </div>
+      <div class="pad" id="bag-list" style="padding-top: 4px;"></div>
+    </section>
+
+    <!-- PFLEGE -->
+    <section class="screen" id="s-pflege" aria-label="Pflege-Guide">
+      <div class="section-label">
+        <p class="overline">Damit es bleibt, was es ist</p>
+        <h2 style="font-size: 22px; margin-top: 4px;">Der Pflege-Guide</h2>
+      </div>
+      <div class="pad" style="padding-top: 6px;">
+        <details class="acc" open>
+          <summary>Jersey &amp; Bamboo</summary>
+          <div class="acc-body"><ul>
+            <li>Handwäsche oder Schonwaschgang bei 30 °C, gern im Wäschenetz</li>
+            <li>Kein Trockner — liegend trocknen, damit die Form bleibt</li>
+            <li>Niedrige Bügeltemperatur, Satin auf links</li>
+          </ul></div>
+        </details>
+        <details class="acc">
+          <summary>Medina &amp; Chiffon</summary>
+          <div class="acc-body"><ul>
+            <li>Handwäsche in kaltem Wasser, nicht wringen</li>
+            <li>Chiffon hängend, Medina liegend trocknen</li>
+            <li>Lieber Dampf als Druck — oder: aufhängen, heiß duschen, warten</li>
+          </ul></div>
+        </details>
+        <details class="acc">
+          <summary>Aufbewahrung</summary>
+          <div class="acc-body"><ul>
+            <li>Gerollt statt gefaltet — weniger Knitterkanten</li>
+            <li>Im Dust Bag: geschützt vor Staub, Reibung und Licht</li>
+            <li>Direkte Sonne meiden — der Lichtechtheit zuliebe</li>
+          </ul></div>
+        </details>
+        <details class="acc">
+          <summary>Unsere Eingangsprüfung</summary>
+          <div class="acc-body"><ul>
+            <li>Waschtest — Form und Farbe nach der Wäsche</li>
+            <li>Knittertest — ein Tuch muss den Tag bestehen</li>
+            <li>Lichtechtheit — Farben, die bleiben</li>
+            <li>Maßkontrolle — 185 × 70 cm Mindestmaß</li>
+          </ul></div>
+        </details>
+      </div>
+    </section>
+
+    <!-- PROFIL / MEHR -->
+    <section class="screen" id="s-mehr" aria-label="Mehr">
+      <div class="section-label">
+        <p class="overline">Die Maison</p>
+        <h2 style="font-size: 22px; margin-top: 4px;">Mehr von HIMA</h2>
+      </div>
+      <nav class="plist" aria-label="Weitere Bereiche">
+        <button type="button" data-nav="pflege">Pflege-Guide <span class="arrow">→</span></button>
+        <button type="button" data-nav="farbpass">Farbpass-Fragebogen <span class="arrow">→</span></button>
+        <a href="../website/index.html">Zur Website der Maison <span class="arrow">→</span></a>
+        <a href="mailto:nouurhijab@gmail.com">Kontakt aufnehmen <span class="arrow">→</span></a>
+        <a href="../website/impressum.html">Impressum <span class="arrow">→</span></a>
+        <a href="../website/datenschutz.html">Datenschutz <span class="arrow">→</span></a>
+      </nav>
+      <div class="pad">
+        <p style="font-family: var(--serif); font-size: 16px; color: var(--charcoal); line-height: 1.7;">HIMA — arabisch <span lang="ar" style="font-family: var(--arabic);">حِمَى</span> — bezeichnet einen Ort, den eine Gemeinschaft unter ihren Schutz stellt. Diese App ist unsere Maison für unterwegs: leise, sorgfältig, persönlich.</p>
+        <hr class="shelter-line" aria-hidden="true">
+        <p style="font-size: 11px; letter-spacing: .18em; text-transform: uppercase; color: var(--taupe-tx);">HIMA App · Vorschau-Version 2.0 · Juli 2026</p>
+        <p style="font-size: 11px; color: var(--taupe-tx); margin-top: 8px; line-height: 1.6;">Merkliste und Tasche werden nur lokal auf Ihrem Gerät gespeichert. Amira antwortet in dieser Vorschau aus dem Wissensschatz der Maison — ohne Datenübertragung an Dritte.</p>
+      </div>
+    </section>
+
+  </div>
+
+  <!-- TAB BAR -->
+  <nav id="tabbar" aria-label="Hauptnavigation">
+    <button class="tab-btn" type="button" data-tab="home" aria-current="true">
+      <svg viewBox="0 0 22 22" fill="none" aria-hidden="true"><path d="M3.5 9.5 11 3l7.5 6.5V19h-5v-5h-5v5h-5V9.5Z" stroke="currentColor" stroke-width="1.1"/></svg>
+      Maison
+    </button>
+    <button class="tab-btn" type="button" data-tab="shop" aria-current="false">
+      <svg viewBox="0 0 22 22" fill="none" aria-hidden="true"><path d="M4 7h14l-1 11.2a1.3 1.3 0 0 1-1.3 1.1H6.3A1.3 1.3 0 0 1 5 18.2L4 7Z" stroke="currentColor" stroke-width="1.1"/><path d="M7.5 9V5.8a3.5 3.5 0 0 1 7 0V9" stroke="currentColor" stroke-width="1.1"/></svg>
+      Kollektion
+    </button>
+    <button class="tab-btn tab-amira" type="button" data-tab="amira" aria-current="false" aria-label="Amira — Ihre Beraterin">
+      <span class="seal" aria-hidden="true">A</span>
+    </button>
+    <button class="tab-btn" type="button" data-tab="wish" aria-current="false">
+      <svg viewBox="0 0 22 22" fill="none" aria-hidden="true"><path d="M11 18.5S3.5 13.7 3.5 8.6A4.1 4.1 0 0 1 11 6.3a4.1 4.1 0 0 1 7.5 2.3c0 5.1-7.5 9.9-7.5 9.9Z" stroke="currentColor" stroke-width="1.1"/></svg>
+      Merkliste <span class="tab-count" data-count="wish"></span>
+    </button>
+    <button class="tab-btn" type="button" data-tab="mehr" aria-current="false">
+      <svg viewBox="0 0 22 22" fill="none" aria-hidden="true"><circle cx="5" cy="11" r="1.3" fill="currentColor"/><circle cx="11" cy="11" r="1.3" fill="currentColor"/><circle cx="17" cy="11" r="1.3" fill="currentColor"/></svg>
+      Mehr
+    </button>
+  </nav>
+
+  <div id="toast" role="status"></div>
+</div>
+
+<script>
+/* ============================================================
+   HIMA App — Logik. Preise: bindende Liste (Juli 2026).
+   ============================================================ */
+(() => {
+  const MAIL = 'nouurhijab@gmail.com';
+
+  const PRODUKTE = [
+    { id: 'liquid-jersey', name: 'Liquid Jersey', kat: 'Jersey', preis: 14.00,
+      imgs: ['assets/img/editorial-schwarz-01.jpg'],
+      kurz: 'Fließender Fall, weicher Griff — der Jersey für Tage in Bewegung.',
+      desc: 'Ein Jersey mit fließendem Fall — er liegt weich auf, folgt jeder Bewegung und behält den Tag über seine Form. Blickdicht, reibungsarm und unkompliziert im Alltag.',
+      masse: 'ca. 185 × 70 cm · ca. 220–280 g/m²', pflege: '30 °C Schonwäsche · kein Trockner · liegend trocknen' },
+    { id: 'premium-jersey', name: 'Premium Jersey', kat: 'Jersey', preis: 13.00,
+      imgs: ['assets/img/editorial-grau-01.jpg'],
+      kurz: 'Der Klassiker der Maison: dicht, matt, blickdicht.',
+      desc: 'Der Klassiker der Maison: dicht gearbeiteter Jersey mit mattem Finish. Formstabil, blickdicht und angenehm unkompliziert — das Tuch für jeden Tag.',
+      masse: 'ca. 185 × 70 cm · ca. 220–280 g/m²', pflege: '30 °C Schonwäsche · kein Trockner · liegend trocknen' },
+    { id: 'premium-jersey-satin', name: 'Premium Jersey Satin', kat: 'Jersey', preis: 15.00,
+      imgs: ['assets/img/editorial-mauve-02.jpg', 'assets/img/editorial-creme-01.jpg'],
+      kurz: 'Die festliche Seite des Jerseys — ein leiser, matter Schimmer.',
+      desc: 'Die festliche Seite des Jerseys: ein leiser, matter Schimmer über weichem Griff. Für Abende, Feste und Momente, die in Erinnerung bleiben.',
+      masse: 'ca. 185 × 70 cm · ca. 220–280 g/m²', pflege: '30 °C Schonwäsche · auf links bügeln' },
+    { id: 'premium-jersey-wellen', name: 'Premium Jersey mit Wellen', kat: 'Jersey', preis: 13.50,
+      imgs: ['assets/img/editorial-marine-02.jpg'],
+      kurz: 'Feine Wellenstruktur, die das Licht bricht.',
+      desc: 'Eine feine Wellenstruktur, die das Licht bricht — Textur, die man sieht und spürt. Für alle, die Understatement mit Charakter tragen.',
+      masse: 'ca. 185 × 70 cm · ca. 220–280 g/m²', pflege: '30 °C Schonwäsche · kein Trockner · liegend trocknen' },
+    { id: 'bamboo', name: 'Bamboo', kat: 'Bamboo', preis: 12.00,
+      imgs: ['assets/img/editorial-salbei-02.jpg', 'assets/img/drape-salbei-01.jpg'],
+      kurz: 'Bambusviskose: leicht, atmungsaktiv, angenehm auf der Haut.',
+      desc: 'Bambusviskose in ihrer leichtesten Form: atmungsaktiv, angenehm temperierend und weich auf der Haut. Für lange Tage und warme Monate.',
+      masse: 'ca. 185 × 70 cm · ca. 160–190 g/m²', pflege: 'Handwäsche · nicht wringen · liegend trocknen' },
+    { id: 'premium-bamboo', name: 'Premium Bamboo', kat: 'Bamboo', preis: 14.00,
+      imgs: ['assets/img/editorial-taupe-01.jpg', 'assets/img/drape-taupe-01.jpg'],
+      kurz: 'Die leichteste Qualität in dichter Ausführung — sanft zum Haaransatz.',
+      desc: 'Unsere leichteste Qualität in dichterer Ausführung: der elegante Fall von Bambusviskose mit mehr Substanz. Sanft zum Haaransatz, atmungsaktiv, ruhig im Ausdruck.',
+      masse: 'ca. 185 × 70 cm · ca. 160–190 g/m²', pflege: 'Handwäsche · nicht wringen · liegend trocknen' },
+    { id: 'medina-seide', name: 'Medina Seide', kat: 'Feine Stoffe', preis: 10.00,
+      imgs: ['assets/img/editorial-taupe-02.jpg'],
+      kurz: 'Seidig-matter Griff, feine Crêpe-Struktur — hält ohne Nadel.',
+      desc: 'Seidig-matter Griff auf feiner Crêpe-Struktur: Medina hält die Drapierung auch ohne Nadel und bewahrt den ganzen Tag ihre Form. (Keine Maulbeerseide.)',
+      masse: 'ca. 185 × 70 cm · leichte Qualität', pflege: 'Kalte Handwäsche · Dampf statt Druck' },
+    { id: 'chiffon', name: 'Chiffon', kat: 'Feine Stoffe', preis: 8.00,
+      imgs: ['assets/img/editorial-creme-02.jpg'],
+      kurz: 'Transparente Leichtigkeit für besondere Stunden.',
+      desc: 'Transparente Leichtigkeit für gelegte Lagen: Chiffon bringt Tiefe in jede Drapierung und bleibt dabei federleicht. Für besondere Stunden.',
+      masse: 'ca. 185 × 70 cm · ca. 40–60 g/m²', pflege: 'Kalte Handwäsche · hängend trocknen · Dampf' },
+    { id: 'bonnet', name: 'Bonnet', kat: 'Accessoires', preis: 4.50,
+      imgs: ['assets/img/flatlay-01.jpg'],
+      kurz: 'Die Basis unter jedem Tuch — sicher, reibungsarm, atmungsaktiv.',
+      desc: 'Die Basis unter jedem Tuch: unser Bonnet hält sicher, ohne zu ziehen — reibungsarm, atmungsaktiv und unsichtbar unter jeder Drapierung.',
+      masse: 'Einheitsgröße mit sanftem Stretch', pflege: '30 °C im Wäschenetz · kein Trockner' },
+    { id: 'nadeln', name: 'Nadeln', kat: 'Accessoires', preis: 1.50,
+      imgs: ['assets/img/flatlay-01.jpg'],
+      kurz: 'Feine Nadeln mit sicherem Halt.',
+      desc: 'Feine Nadeln mit sicherem Halt — das stille Werkzeug jeder Drapierung. Glatt poliert, damit sie feine Stoffe nicht zeichnen.',
+      masse: 'Set mit mehreren Nadeln', pflege: 'Trocken aufbewahren · von Kindern fernhalten' }
+  ];
+  const byId = id => PRODUKTE.find(p => p.id === id);
+  const fmt = n => n.toFixed(2).replace('.', ',') + ' €';
+
+  /* — Storage (mit Website geteilt, gleiche Schlüssel) — */
+  const load = k => { try { return JSON.parse(localStorage.getItem(k)) || []; } catch { return []; } };
+  const save = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch {} };
+  let bag = load('hima_bag'), wish = load('hima_wish');
+
+  /* — Toast — */
+  let tt;
+  const toast = m => {
+    const t = document.getElementById('toast');
+    t.textContent = m; t.classList.add('show');
+    clearTimeout(tt); tt = setTimeout(() => t.classList.remove('show'), 2200);
+  };
+
+  /* — Navigation: Tabs + Stack — */
+  const TAB_SCREENS = { home: 's-home', shop: 's-shop', amira: 's-amira', wish: 's-wish', mehr: 's-mehr' };
+  const TITLES = { 's-pdp': '', 's-bag': 'Tasche', 's-pflege': 'Pflege', 's-farbpass': 'Dein Ton' };
+  let stack = ['s-home'];
+
+  function show(id, dir) {
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active', 'slide-in', 'slide-back'));
+    const el = document.getElementById(id);
+    el.classList.add('active', dir === 'back' ? 'slide-back' : 'slide-in');
+    el.scrollTop = 0;
+    // Top-Bar
+    const isRoot = Object.values(TAB_SCREENS).includes(id);
+    document.getElementById('tb-back').style.display = isRoot ? 'none' : 'flex';
+    document.getElementById('tb-logo-mark').parentElement.querySelector('.tb-arabic').style.display = isRoot ? '' : 'none';
+    document.getElementById('tb-logo-mark').style.display = isRoot ? '' : 'none';
+    const t = document.getElementById('tb-title');
+    t.style.display = isRoot ? 'none' : 'inline';
+    t.textContent = TITLES[id] || '';
+    // Tab-Markierung
+    document.querySelectorAll('.tab-btn').forEach(b => {
+      const active = TAB_SCREENS[b.dataset.tab] === id;
+      b.setAttribute('aria-current', String(active));
+    });
+  }
+  function goTab(tab) { stack = [TAB_SCREENS[tab]]; show(stack[0]); }
+  function push(id) { stack.push(id); show(id); }
+  function pop() { if (stack.length > 1) { stack.pop(); show(stack[stack.length - 1], 'back'); } }
+
+  document.querySelectorAll('.tab-btn').forEach(b => b.addEventListener('click', () => goTab(b.dataset.tab)));
+  document.getElementById('tb-back').addEventListener('click', pop);
+  document.getElementById('tb-bag').addEventListener('click', () => { renderBag(); push('s-bag'); });
+  document.querySelectorAll('[data-nav]').forEach(b => b.addEventListener('click', () => {
+    const target = b.dataset.nav;
+    if (target === 'shop' || target === 'amira') goTab(target);
+    else if (target === 'farbpass') { renderQuiz(0, []); push('s-farbpass'); }
+    else if (target === 'pflege') push('s-pflege');
+  }));
+
+  /* — Zähler — */
+  const counts = () => {
+    document.querySelectorAll('[data-count="wish"]').forEach(el => el.textContent = wish.length || '');
+  };
+
+  /* — Produktkarten — */
+  const cardHTML = p => `
+    <button class="pcard" type="button" data-pdp="${p.id}">
+      <img src="${p.imgs[0]}" alt="${p.name} — ${p.kat}" loading="lazy">
+      <span class="pc-cat">${p.kat}</span>
+      <span class="pc-name" style="display:block;">${p.name}</span>
+      <span class="pc-price" style="display:block;">${fmt(p.preis)}</span>
+    </button>`;
+
+  function renderShop(kat) {
+    const list = kat === 'alle' ? PRODUKTE : PRODUKTE.filter(p => p.kat === kat);
+    document.getElementById('shop-grid').innerHTML = list.map(cardHTML).join('');
+  }
+  document.querySelectorAll('.chip').forEach(c => c.addEventListener('click', () => {
+    document.querySelectorAll('.chip').forEach(x => x.setAttribute('aria-pressed', 'false'));
+    c.setAttribute('aria-pressed', 'true');
+    renderShop(c.dataset.kat);
+  }));
+
+  /* — PDP — */
+  function renderPDP(id) {
+    const p = byId(id);
+    const inWish = wish.includes(id);
+    document.getElementById('s-pdp').innerHTML = `
+      <img class="pdp-img" id="pdp-main" src="${p.imgs[0]}" alt="${p.name} — ${p.kat}">
+      ${p.imgs.length > 1 ? `<div class="pdp-thumbs">${p.imgs.map((s, i) =>
+        `<button type="button" data-i="${i}" aria-pressed="${i === 0}" aria-label="Bild ${i + 1}"><img src="${s}" alt=""></button>`).join('')}</div>` : ''}
+      <div class="pad pdp-body">
+        <p class="overline">${p.kat}</p>
+        <h1>${p.name}</h1>
+        <hr class="shelter-line" aria-hidden="true" style="margin: 12px 0;">
+        <p class="pdp-price">${fmt(p.preis)} <small>zzgl. Versand</small></p>
+        <p class="pdp-desc">${p.desc}</p>
+        <div style="display: grid; gap: 10px; margin-top: 20px;">
+          <button type="button" class="btn solid block" data-add="${p.id}">In die Tasche</button>
+          <button type="button" class="btn block" data-wish="${p.id}">${inWish ? 'Gemerkt ✓' : 'Merken'}</button>
+        </div>
+        <p class="pdp-note">Bestellung derzeit als persönliche Anfrage — der Checkout öffnet in Kürze. Farbwünsche nennen Sie einfach in Ihrer Nachricht.</p>
+        <div style="margin-top: 22px;">
+          <details class="acc" open><summary>Maße &amp; Material</summary><div class="acc-body">${p.masse}</div></details>
+          <details class="acc"><summary>Pflege</summary><div class="acc-body">${p.pflege}</div></details>
+          <details class="acc"><summary>Qualität &amp; Prüfung</summary><div class="acc-body">Jede Charge durchläuft unsere Eingangsprüfung: Waschtest, Knittertest, Lichtechtheit, Maßkontrolle.</div></details>
+        </div>
+        <div class="section-label" style="padding-left: 0;"><p class="overline">Passt dazu</p></div>
+        <div class="pgrid" style="padding: 0;">
+          ${PRODUKTE.filter(x => x.id !== p.id).sort((a, b) => (b.kat === p.kat) - (a.kat === p.kat)).slice(0, 2).map(cardHTML).join('')}
+        </div>
+      </div>`;
+    const main = document.getElementById('pdp-main');
+    document.querySelectorAll('#s-pdp .pdp-thumbs button').forEach(b => b.addEventListener('click', () => {
+      document.querySelectorAll('#s-pdp .pdp-thumbs button').forEach(x => x.setAttribute('aria-pressed', 'false'));
+      b.setAttribute('aria-pressed', 'true');
+      main.src = p.imgs[+b.dataset.i];
+    }));
+  }
+
+  /* — Tasche & Merkliste — */
+  function addBag(id) {
+    const r = bag.find(i => i.id === id);
+    if (r) r.qty++; else bag.push({ id, qty: 1 });
+    save('hima_bag', bag); toast('In die Tasche gelegt');
+  }
+  function setQty(id, q) {
+    bag = q <= 0 ? bag.filter(i => i.id !== id) : bag.map(i => i.id === id ? { ...i, qty: q } : i);
+    save('hima_bag', bag); renderBag();
+  }
+  function toggleWish(id) {
+    wish = wish.includes(id) ? wish.filter(x => x !== id) : [...wish, id];
+    save('hima_wish', wish); counts(); renderWish();
+    toast(wish.includes(id) ? 'Zur Merkliste hinzugefügt' : 'Von der Merkliste entfernt');
+  }
+
+  function renderBag() {
+    const host = document.getElementById('bag-list');
+    if (!bag.length) { host.innerHTML = '<p class="empty-note">Ihre Tasche ist noch leer.<br>Die Kollektion wartet auf Sie.</p>'; return; }
+    const total = bag.reduce((s, i) => s + byId(i.id).preis * i.qty, 0);
+    host.innerHTML = bag.map(i => { const p = byId(i.id); return `
+      <div class="list-item">
+        <img src="${p.imgs[0]}" alt="">
+        <div>
+          <p class="li-name">${p.name}</p>
+          <p class="li-price">${fmt(p.preis)}</p>
+          <span class="li-qty">
+            <button type="button" data-q="${p.id}|${i.qty - 1}" aria-label="Menge verringern">−</button>
+            ${i.qty}
+            <button type="button" data-q="${p.id}|${i.qty + 1}" aria-label="Menge erhöhen">+</button>
+          </span>
+        </div>
+        <button type="button" class="li-x" data-q="${p.id}|0">Entfernen</button>
+      </div>`; }).join('') + `
+      <p style="display: flex; justify-content: space-between; font-family: var(--serif); font-size: 18px; color: var(--espresso); margin-top: 18px;"><span>Zwischensumme</span><strong>${fmt(total)}</strong></p>
+      <p class="pdp-note" style="margin-top: 8px;">Der Checkout öffnet in Kürze. Bis dahin: Auswahl als unverbindliche Anfrage senden — wir antworten innerhalb von 24 Stunden persönlich. Falls sich kein E-Mail-Fenster öffnet: nouurhijab@gmail.com</p>
+      <button type="button" class="btn solid block" style="margin-top: 14px;" id="bag-send">Auswahl anfragen</button>`;
+    document.getElementById('bag-send')?.addEventListener('click', () => {
+      const lines = bag.map(i => `${i.qty} × ${byId(i.id).name} (${fmt(byId(i.id).preis)})`).join('\n');
+      location.href = `mailto:${MAIL}?subject=${encodeURIComponent('Anfrage über die HIMA-App')}&body=${encodeURIComponent('Guten Tag,\n\nich möchte gern folgende Artikel anfragen:\n\n' + lines + '\n\nZwischensumme: ' + fmt(bag.reduce((s, i) => s + byId(i.id).preis * i.qty, 0)) + '\n\nMeine Wunschfarben / Fragen:\n\nMit freundlichen Grüßen')}`;
+    });
+  }
+
+  function renderWish() {
+    const host = document.getElementById('wish-list');
+    if (!wish.length) { host.innerHTML = '<p class="empty-note">Ihre Merkliste ist noch leer.<br>Tippen Sie bei einem Produkt auf „Merken".</p>'; return; }
+    host.innerHTML = wish.map(id => { const p = byId(id); return `
+      <div class="list-item">
+        <img src="${p.imgs[0]}" alt="">
+        <div>
+          <p class="li-name">${p.name}</p>
+          <p class="li-price">${fmt(p.preis)}</p>
+        </div>
+        <div style="display: grid; gap: 8px; justify-items: end;">
+          <button type="button" class="li-x" data-pdp="${p.id}" style="color: var(--espresso);">Ansehen</button>
+          <button type="button" class="li-x" data-unwish="${p.id}">Entfernen</button>
+        </div>
+      </div>`; }).join('');
+  }
+
+  /* — Amira (Demo-Modus, regelbasiert — kein API-Key im Client) — */
+  const AMIRA_SUGG = ['Welcher Stoff für den Alltag?', 'Was passt zu meinem Hautton?', 'Wie pflege ich Chiffon?', 'Was kostet Premium Bamboo?', 'Wie bestelle ich?'];
+  function amiraAnswer(q) {
+    const s = q.toLowerCase();
+    if (/(hallo|salam|guten|hey|hi)\b/.test(s))
+      return 'Herzlich willkommen in der Maison. Ich bin Amira und berate Sie gern zu Stoffen, Farben und Pflege. Was darf ich Ihnen zeigen?';
+    if (/(alltag|arbeit|uni|täglich|jeden tag|büro)/.test(s))
+      return 'Für den Alltag empfehle ich unsere Jerseys: Der Premium Jersey (13,00 €) ist dicht, matt und formstabil — er sitzt, ohne dass Sie nachfassen müssen. Wenn Sie viel in Bewegung sind, greifen Sie zum Liquid Jersey (14,00 €) mit fließendem Fall.';
+    if (/(sommer|warm|heiß|leicht|atmung)/.test(s))
+      return 'Für warme Tage sind unsere Bamboo-Qualitäten gemacht: leicht, atmungsaktiv und angenehm temperierend. Bamboo (12,00 €) ist die leichteste Wahl, Premium Bamboo (14,00 €) fällt dichter und eleganter.';
+    if (/(fest|abend|hochzeit|anlass|feier|besonder)/.test(s))
+      return 'Für besondere Stunden: Premium Jersey Satin (15,00 €) mit leisem Schimmer — oder Chiffon (8,00 €) für gelegte Lagen mit Tiefe. Beide wirken am schönsten in ruhigen Tönen wie Creme oder Mauve.';
+    if (/(hautton|teint|farbe|ton|steht mir|welche farbe)/.test(s))
+      return 'Farben sind sehr persönlich. Als Faustregel: Warme Hauttöne leuchten mit Creme, Taupe und Olive; kühlere Nuancen tragen Grau, Marine und Mauve besonders schön. Am genauesten wird es mit unserem Farbpass-Fragebogen — Sie finden ihn auf der Startseite unter „Dein Ton".';
+    if (/(pflege|waschen|bügeln|trocknen|knitter)/.test(s))
+      return 'Kurz gefasst: Jersey und Bamboo mögen 30 °C Schonwäsche und trocknen liegend. Medina und Chiffon bitte kalt von Hand waschen und lieber dämpfen als bügeln. Den vollständigen Pflege-Guide finden Sie unter „Mehr".';
+    if (/(medina|seide)/.test(s))
+      return 'Medina Seide (10,00 €) hat einen seidig-matten Griff und eine feine Crêpe-Struktur — sie hält die Drapierung auch ohne Nadel. Ein ehrliches Wort: Es ist keine Maulbeerseide, der Name beschreibt die Qualitätsklasse.';
+    if (/(chiffon)/.test(s))
+      return 'Chiffon (8,00 €) ist unsere leichteste Qualität — halbtransparent und federleicht. Er wird meist in Lagen oder über einem Bonnet (4,50 €) getragen und pflegt sich am liebsten mit kalter Handwäsche.';
+    if (/(jersey)/.test(s))
+      return 'Unsere Jersey-Familie: Premium Jersey (13,00 €) als Klassiker, Liquid Jersey (14,00 €) mit fließendem Fall, Premium Jersey Satin (15,00 €) für festliche Momente und Premium Jersey mit Wellen (13,50 €) für spürbare Textur.';
+    if (/(bamboo|bambus)/.test(s))
+      return 'Bamboo (12,00 €) ist leicht und atmungsaktiv — ideal für warme Monate. Premium Bamboo (14,00 €) ist dichter gearbeitet und fällt eleganter; er ist eine unserer beliebtesten Qualitäten.';
+    if (/(preis|kost|teuer|günstig)/.test(s))
+      return 'Unsere aktuelle Preisliste: Chiffon 8,00 € · Medina Seide 10,00 € · Bamboo 12,00 € · Premium Jersey 13,00 € · Jersey mit Wellen 13,50 € · Liquid Jersey und Premium Bamboo je 14,00 € · Premium Jersey Satin 15,00 € · Bonnet 4,50 € · Nadeln 1,50 €.';
+    if (/(bestell|kauf|checkout|zahl|liefer|versand)/.test(s))
+      return 'Derzeit bestellen Sie per persönlicher Anfrage: Legen Sie Ihre Auswahl in die Tasche und senden Sie sie ab — Ihr E-Mail-Programm öffnet sich mit der fertigen Liste. Wir antworten innerhalb von 24 Stunden mit Verfügbarkeit und Farbkarte. Der Online-Checkout öffnet in Kürze.';
+    if (/(magnet|maghnatis|verschluss|nadel)/.test(s))
+      return 'Der Maghnatis ist unser Signature-Magnetverschluss in Entwicklung — er hält die Drapierung, ohne den Stoff zu durchstechen. Er entsteht in kleinen Serien im MakerSpace Mönchengladbach. Über die Warteliste erfahren Sie zuerst vom Start. Bitte beachten Sie: Magnetprodukte gehören nicht in Kinderhände.';
+    if (/(bonnet|untertuch)/.test(s))
+      return 'Das Bonnet (4,50 €) ist die Basis unter jedem Tuch: Es hält sicher, ohne zu ziehen — reibungsarm und atmungsaktiv. Besonders unter Chiffon und Medina eine gute Grundlage.';
+    if (/(haar|kopfhaut|gesund|ausfall)/.test(s))
+      return 'Wir achten bei allen Qualitäten auf reibungsarme Oberflächen und Materialien, die sanft zum Haaransatz sind. Bei medizinischen Fragen rund um Haar oder Kopfhaut wenden Sie sich bitte an Ihre Ärztin — das kann und darf ich nicht beurteilen.';
+    if (/(danke|schukran|shukran)/.test(s))
+      return 'Sehr gern. Wenn Sie mögen, schauen Sie noch beim Farbpass-Fragebogen vorbei — oder schreiben Sie uns direkt: ' + MAIL + '. Die Maison freut sich auf Sie.';
+    return 'Das nehme ich gern mit in die Maison — in dieser Vorschau kenne ich vor allem unsere Stoffe, Farben, Preise und die Pflege. Fragen Sie mich zum Beispiel: „Welcher Stoff für den Alltag?" oder „Was passt zu meinem Hautton?" Für alles andere: ' + MAIL;
+  }
+
+  function amiraSay(text, who) {
+    const log = document.getElementById('amira-log');
+    const div = document.createElement('div');
+    div.className = 'msg ' + who;
+    div.innerHTML = `<span class="msg-who">${who === 'amira' ? 'Amira' : 'Sie'}</span>${text}`;
+    log.appendChild(div);
+    log.scrollTop = log.scrollHeight;
+  }
+  function amiraAsk(q) {
+    amiraSay(q, 'user');
+    setTimeout(() => amiraSay(amiraAnswer(q), 'amira'), 420);
+  }
+  document.getElementById('amira-form').addEventListener('submit', e => {
+    e.preventDefault();
+    const inp = document.getElementById('amira-text');
+    const q = inp.value.trim();
+    if (!q) return;
+    inp.value = '';
+    amiraAsk(q);
+  });
+  document.getElementById('amira-sugg').innerHTML = AMIRA_SUGG.map(s => `<button class="chip" type="button" data-sugg="${s}">${s}</button>`).join('');
+
+  /* — Farbpass Quiz — */
+  const QUIZ = [
+    { q: 'Wie reagiert Ihre Haut auf Sonne?', a: ['Sie wird schnell goldbraun', 'Sie rötet sich eher', 'Irgendwo dazwischen'] },
+    { q: 'Welcher Schmuckton schmeichelt Ihnen mehr?', a: ['Gold', 'Silber', 'Beides gleich'] },
+    { q: 'Ihre Garderobe ist vor allem …', a: ['Erdig: Beige, Braun, Oliv', 'Kühl: Grau, Marine, Schwarz', 'Gemischt'] },
+    { q: 'Wofür suchen Sie Ihren Ton?', a: ['Für jeden Tag', 'Für besondere Anlässe', 'Für beides'] }
+  ];
+  const QUIZ_RESULT = {
+    warm: { name: 'Warme Erde', text: 'Ihnen schmeicheln warme, erdige Nuancen: Creme, Taupe, Olive und Braun. Sie machen Ihren Teint lebendig, ohne laut zu werden.',
+      farben: ['#E8DCCB', '#8C7767', '#77775C', '#5C4636'], produkte: ['premium-bamboo', 'medina-seide'] },
+    kuehl: { name: 'Stille Tiefe', text: 'Kühle, tiefe Töne stehen Ihnen besonders: Grau, Marine, Mauve und Schwarz. Sie rahmen Ihr Gesicht ruhig und klar.',
+      farben: ['#A8A29B', '#2E3A4E', '#B08E9A', '#1E1A17'], produkte: ['premium-jersey', 'premium-jersey-wellen'] },
+    neutral: { name: 'Die freie Mitte', text: 'Sie tragen beides — Ihre Mitte liegt in ausgewogenen Tönen: Salbei, Grau, Creme und Taupe. Eine Palette, die alles mitmacht.',
+      farben: ['#A9B49A', '#A8A29B', '#E8DCCB', '#8C7767'], produkte: ['bamboo', 'premium-jersey-satin'] }
+  };
+  function renderQuiz(step, answers) {
+    const host = document.getElementById('s-farbpass');
+    if (step >= QUIZ.length) {
+      const warm = answers.filter(a => a === 0).length;
+      const kuehl = answers.filter(a => a === 1).length;
+      const key = warm > kuehl ? 'warm' : kuehl > warm ? 'kuehl' : 'neutral';
+      const r = QUIZ_RESULT[key];
+      host.innerHTML = `
+        <div class="quiz-q">
+          <p class="overline">Ihr Ergebnis</p>
+          <h2 style="font-size: 24px; margin-top: 6px;">${r.name}</h2>
+          <hr class="shelter-line" aria-hidden="true">
+          <p style="font-family: var(--serif); font-size: 17px; line-height: 1.65;">${r.text}</p>
+          <div class="swatch-row" role="img" aria-label="Ihre Farbwelt">${r.farben.map(f => `<span class="swatch" style="background:${f}"></span>`).join('')}</div>
+          <p class="pdp-note" style="margin-top: 16px;">Eine Orientierung, kein Urteil — Ihr persönlicher „Dein Ton"-Farbpass entsteht derzeit im Atelier. Ihre Antworten bleiben auf Ihrem Gerät.</p>
+          <div class="section-label" style="padding-left: 0;"><p class="overline">Aus Ihrer Farbwelt</p></div>
+          <div class="pgrid" style="padding: 0;">${r.produkte.map(id => cardHTML(byId(id))).join('')}</div>
+          <button type="button" class="btn block" style="margin-top: 18px;" id="quiz-restart">Noch einmal</button>
+        </div>`;
+      document.getElementById('quiz-restart').addEventListener('click', () => renderQuiz(0, []));
+      return;
+    }
+    const q = QUIZ[step];
+    host.innerHTML = `
+      <div class="quiz-q">
+        <p class="overline">Dein Ton · Frage ${step + 1} von ${QUIZ.length}</p>
+        <div class="quiz-progress" style="padding: 12px 0 4px;">${QUIZ.map((_, i) => `<span class="${i < step ? 'done' : ''}"></span>`).join('')}</div>
+        <h2 style="font-size: 22px; margin-top: 14px;">${q.q}</h2>
+        ${q.a.map((a, i) => `<button class="quiz-opt" type="button" data-opt="${i}">${a}</button>`).join('')}
+      </div>`;
+    host.querySelectorAll('.quiz-opt').forEach(b => b.addEventListener('click', () => renderQuiz(step + 1, [...answers, +b.dataset.opt])));
+  }
+
+  /* — Onboarding — */
+  const OB = [
+    { t: 'Willkommen in der Maison', x: 'HIMA — der geschützte Ort. Kuratierte Hijabs und feine Stoffe, mit Ruhe entworfen und mit Sorgfalt geprüft.', img: 'assets/img/drape-salbei-02.jpg' },
+    { t: 'Stoffe, die ehrlich sind', x: 'Grammatur, Fall, Griff: Wir beschreiben unsere Qualitäten so, wie sie sind — und Amira berät Sie persönlich.', img: 'assets/img/drape-taupe-01.jpg' },
+    { t: 'Ihr Ton, Ihre Merkliste', x: 'Finden Sie mit dem Farbpass-Fragebogen Ihre Farbwelt und behalten Sie Favoriten auf der Merkliste — alles bleibt auf Ihrem Gerät.', img: 'assets/img/editorial-mauve-01.jpg' }
+  ];
+  let obStep = 0;
+  const obDone = () => {
+    document.getElementById('onboarding').style.display = 'none';
+    try { localStorage.setItem('hima_ob', '1'); } catch {}
+  };
+  document.getElementById('ob-next').addEventListener('click', () => {
+    obStep++;
+    if (obStep >= OB.length) return obDone();
+    document.getElementById('ob-title').textContent = OB[obStep].t;
+    document.getElementById('ob-text').textContent = OB[obStep].x;
+    document.getElementById('ob-img').src = OB[obStep].img;
+    if (obStep === OB.length - 1) document.getElementById('ob-next').textContent = 'Los geht’s';
+  });
+  document.getElementById('ob-skip').addEventListener('click', obDone);
+  try { if (localStorage.getItem('hima_ob')) obDone(); } catch {}
+
+  /* — Delegierte Klicks — */
+  document.addEventListener('click', e => {
+    const pdp = e.target.closest('[data-pdp]');
+    if (pdp) { renderPDP(pdp.dataset.pdp); push('s-pdp'); return; }
+    const add = e.target.closest('[data-add]');
+    if (add) { addBag(add.dataset.add); return; }
+    const w = e.target.closest('[data-wish]');
+    if (w) { toggleWish(w.dataset.wish); w.textContent = wish.includes(w.dataset.wish) ? 'Gemerkt ✓' : 'Merken'; return; }
+    const uw = e.target.closest('[data-unwish]');
+    if (uw) { toggleWish(uw.dataset.unwish); return; }
+    const q = e.target.closest('[data-q]');
+    if (q) { const [id, n] = q.dataset.q.split('|'); setQty(id, +n); return; }
+    const sg = e.target.closest('[data-sugg]');
+    if (sg) { amiraAsk(sg.dataset.sugg); return; }
+  });
+
+  /* — Start — */
+  const homeSel = ['premium-bamboo', 'liquid-jersey', 'premium-jersey-satin', 'chiffon'];
+  document.getElementById('home-grid').innerHTML = homeSel.map(id => cardHTML(byId(id))).join('');
+  renderShop('alle');
+  renderWish();
+  counts();
+  show('s-home');
+  amiraSay('Herzlich willkommen, schön dass Sie da sind. Ich bin Amira, die Beraterin der Maison. Fragen Sie mich nach Stoffen, Farben, Preisen oder Pflege — oder tippen Sie auf einen Vorschlag.', 'amira');
+})();
+</script>
+</body>
+</html>

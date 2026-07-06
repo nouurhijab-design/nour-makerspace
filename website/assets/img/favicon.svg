@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <rect width="64" height="64" fill="#2C1A10"/>
+  <!-- Monogramm H mit Schutz-Querbalken (Shelter Line) -->
+  <rect x="14" y="14" width="4" height="36" fill="#F4EFE6"/>
+  <rect x="46" y="14" width="4" height="36" fill="#F4EFE6"/>
+  <rect x="18" y="30" width="28" height="4" fill="#F4EFE6"/>
+  <rect x="10" y="20" width="44" height="1.2" fill="#B8965A"/>
+</svg>

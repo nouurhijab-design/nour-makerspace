@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>HIMA — Logo & Visitenkarte</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=Amiri:wght@400&family=Jost:wght@300;400;500&display=swap');
+:root{--espresso:#2C1A10;--ivory:#F4EFE6;--gold:#B8965A;--goldL:#C7A977;--sand:#DCCCB6;--taupe:#A58F7A;--page:#E7E0D4}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Cormorant Garamond',serif;background:var(--page);color:var(--espresso);padding:46px 22px 80px}
+h2.sec{font-family:'Jost',sans-serif;font-weight:400;font-size:13px;letter-spacing:.4em;text-transform:uppercase;color:var(--taupe);text-align:center;margin:48px 0 6px}
+.sub{font-size:13px;font-style:italic;color:#8a7a68;text-align:center;margin-bottom:24px}
+.row{display:flex;flex-wrap:wrap;gap:24px;justify-content:center;align-items:flex-start}
+.cell{display:flex;flex-direction:column;align-items:center;gap:9px}
+.tag{font-family:'Jost',sans-serif;font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:#8a7a68}
+.card{border-radius:13px;overflow:hidden;box-shadow:0 8px 26px rgba(44,26,16,.14)}
+/* logo lockup */
+.lk{text-align:center}
+.lk .h{font-weight:600;letter-spacing:.32em;line-height:1;padding-left:.32em}
+.lk .rule{height:1px;margin:.2em auto 0}
+.lk .ar{font-family:'Amiri',serif;direction:rtl;line-height:1}
+.lk .cap{font-family:'Jost',sans-serif;font-size:.62em;letter-spacing:.4em;text-transform:uppercase;font-weight:300}
+.logoTile{width:330px;height:210px;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.logoTile .h{font-size:48px}.logoTile .ar{font-size:26px;margin-top:13px}.logoTile .cap{margin-top:13px}
+.esp{background:var(--espresso)} .esp .h{color:var(--ivory)} .esp .rule{background:var(--goldL)} .esp .ar{color:var(--goldL)} .esp .cap{color:var(--sand)}
+.ivo{background:var(--ivory)} .ivo .h{color:var(--espresso)} .ivo .rule{background:var(--gold)} .ivo .ar{color:var(--gold)} .ivo .cap{color:var(--taupe)}
+.wrapH{display:inline-block}
+.mono{width:130px;height:130px;display:flex;align-items:center;justify-content:center}
+.mono .m{font-weight:600;font-size:70px}
+/* business card 85x55 -> ratio 1.545 */
+.bc{width:340px;height:220px;position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center}
+.bc .h{font-weight:600;font-size:34px;letter-spacing:.32em;padding-left:.32em}
+.bc .rule{height:1px;width:84px;margin:9px auto 0}
+.bc .ar{font-family:'Amiri',serif;font-size:20px;margin-top:9px}
+.bc .cap{font-family:'Jost',sans-serif;font-size:9px;letter-spacing:.4em;text-transform:uppercase;font-weight:300;margin-top:11px}
+/* back */
+.bcb{width:340px;height:220px;display:flex;flex-direction:column;justify-content:center;padding:30px 34px;gap:4px}
+.bcb .name{font-weight:600;font-size:22px;color:var(--espresso)}
+.bcb .role{font-family:'Jost',sans-serif;font-size:10px;letter-spacing:.3em;text-transform:uppercase;color:var(--taupe);margin-bottom:14px;font-weight:300}
+.bcb .line{font-family:'Jost',sans-serif;font-size:11px;letter-spacing:.05em;color:#5b4a3c;font-weight:300;line-height:1.9}
+.bcb .top{display:flex;justify-content:space-between;align-items:flex-start}
+.bcb .miniH{font-weight:600;font-size:18px;letter-spacing:.28em;color:var(--espresso);padding-left:.28em}
+.qr{width:46px;height:46px;border:1px solid var(--gold);display:flex;align-items:center;justify-content:center;font-family:'Jost',sans-serif;font-size:7px;color:var(--taupe);text-align:center;letter-spacing:.05em}
+.title{text-align:center;margin-bottom:6px}
+.title .bn{font-weight:600;font-size:30px;letter-spacing:.3em;padding-left:.3em}
+.title .bs{font-family:'Jost',sans-serif;font-size:11px;letter-spacing:.4em;text-transform:uppercase;color:var(--taupe);margin-top:7px;font-weight:300}
+</style></head>
+<body>
+<div class="title"><div class="bn">HIMA</div><div class="bs">Logo & Visitenkarte</div></div>
+
+<h2 class="sec">Logo — Primär</h2>
+<div class="sub">Wortbild in Espresso & Ivory, mit Goldunterstrich und حِمَى</div>
+<div class="row">
+  <div class="cell"><div class="card logoTile esp lk"><div class="wrapH"><div class="h">HIMA</div><div class="rule"></div></div><div class="ar">حِمَى</div><div class="cap">Eleganz, die schützt</div></div><div class="tag">Espresso</div></div>
+  <div class="cell"><div class="card logoTile ivo lk"><div class="wrapH"><div class="h">HIMA</div><div class="rule"></div></div><div class="ar">حِمَى</div><div class="cap">Eleganz, die schützt</div></div><div class="tag">Ivory</div></div>
+  <div class="cell"><div class="card mono esp lk"><div class="wrapH"><div class="m" style="color:var(--ivory)">H</div><div class="rule" style="background:var(--goldL)"></div></div></div><div class="tag">Monogramm</div></div>
+</div>
+
+<h2 class="sec">Visitenkarte</h2>
+<div class="sub">Vorderseite (Espresso) & Rückseite (Ivory) — 85 × 55 mm</div>
+<div class="row">
+  <div class="cell"><div class="card bc esp lk"><div class="wrapH"><div class="h">HIMA</div><div class="rule"></div></div><div class="ar">حِمَى</div><div class="cap">Eleganz, die schützt</div></div><div class="tag">Vorderseite</div></div>
+  <div class="cell"><div class="card bcb ivo">
+    <div class="top"><div><div class="name">Nour</div><div class="role">Gründerin</div></div><div class="qr">QR<br>byhima</div></div>
+    <div class="line">byhima.com<br>nour@byhima.com<br>@hima · Instagram<br>Deutschland</div>
+    <div style="margin-top:14px"><span class="miniH">HIMA</span></div>
+  </div><div class="tag">Rückseite</div></div>
+</div>
+</body></html>

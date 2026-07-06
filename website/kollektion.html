@@ -1,0 +1,176 @@
+﻿<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kollektion — HIMA | Maison de Modestie</title>
+<meta name="description" content="Die HIMA-Kollektion: Hijabs aus Jersey, Bambusviskose, Medina und Chiffon sowie Accessoires. Kuratierte Qualitäten, ehrliche Materialsprache.">
+<link rel="icon" href="assets/img/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,400&family=Playfair+Display:wght@400;500&family=Amiri:wght@400;700&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/css/hima.css">
+</head>
+<body>
+
+<a class="skip-link" href="#main">Zum Inhalt springen</a>
+
+<header id="nav">
+  <button class="nav-burger" aria-label="Menü öffnen" aria-expanded="false" aria-controls="mobile-menu">
+    <svg width="22" height="22" viewBox="0 0 22 22" fill="none" aria-hidden="true"><path d="M2 6h18M2 11h18M2 16h18" stroke="currentColor" stroke-width="1.2"/></svg>
+  </button>
+  <ul class="nav-links">
+    <li><a href="kollektion.html" aria-current="page">Kollektion</a></li>
+    <li><a href="stoffe.html">Stoffe</a></li>
+    <li><a href="maison.html">Maison</a></li>
+    <li><a href="atelier.html">Atelier</a></li>
+    <li><a href="journal.html">Journal</a></li>
+  </ul>
+  <a class="nav-logo" href="index.html" aria-label="HIMA — zur Startseite">
+    <span class="nav-wordmark">HIMA</span>
+    <span class="nav-sub" lang="ar">حِمَى</span>
+  </a>
+  <div class="nav-actions">
+    <a href="kontakt.html" class="hide-m">Kontakt</a>
+    <button type="button" data-open-wish aria-label="Merkliste öffnen">Merkliste <span class="count" data-count="wish"></span></button>
+    <button type="button" data-open-bag aria-label="Tasche öffnen">Tasche <span class="count" data-count="bag"></span></button>
+  </div>
+</header>
+
+<div id="mobile-menu" role="dialog" aria-modal="true" aria-label="Menü">
+  <div class="mm-head">
+    <span class="nav-wordmark">HIMA</span>
+    <button type="button" class="mm-close d-close" aria-label="Menü schließen">×</button>
+  </div>
+  <nav aria-label="Mobile Navigation">
+    <a href="kollektion.html">Kollektion</a>
+    <a href="stoffe.html">Stoffe</a>
+    <a href="maison.html">Maison</a>
+    <a href="atelier.html">Atelier</a>
+    <a href="journal.html">Journal</a>
+    <a href="kontakt.html">Kontakt</a>
+  </nav>
+  <p class="mm-meta">Maison de Modestie · <a href="mailto:nouurhijab@gmail.com">nouurhijab@gmail.com</a></p>
+</div>
+
+<main id="main">
+
+  <div class="wrap">
+    <div class="page-head">
+      <p class="overline">Die Kollektion</p>
+      <h1>Jede Qualität hat ihren Moment</h1>
+      <hr class="shelter-line" aria-hidden="true">
+      <p class="lead">Zehn Qualitäten, von Hand geprüft: Waschtest, Knittertest, Lichtechtheit, Maßkontrolle. Erst dann trägt ein Stoff unseren Namen.</p>
+    </div>
+
+    <div class="filterbar" role="group" aria-label="Nach Kategorie filtern" style="margin-top: 40px;">
+      <button type="button" data-filter="alle" aria-pressed="true">Alle</button>
+      <button type="button" data-filter="Jersey" aria-pressed="false">Jersey</button>
+      <button type="button" data-filter="Bamboo" aria-pressed="false">Bamboo</button>
+      <button type="button" data-filter="Feine Stoffe" aria-pressed="false">Feine Stoffe</button>
+      <button type="button" data-filter="Accessoires" aria-pressed="false">Accessoires</button>
+    </div>
+
+    <p id="filter-status" class="visually-hidden" aria-live="polite"></p>
+    <div class="grid-4" id="produkt-grid" style="margin-bottom: 96px;"></div>
+  </div>
+
+  <section class="section-dark" aria-labelledby="beratung-h" style="margin-top: 0;">
+    <div class="wrap">
+      <div class="section-head center reveal" style="margin-bottom: 0;">
+        <p class="overline">Unsicher bei Stoff oder Farbe?</p>
+        <h2 id="beratung-h">Wir beraten Sie persönlich</h2>
+        <hr class="shelter-line center" aria-hidden="true">
+        <p style="font-family: var(--serif); font-size: 18px; max-width: 52ch; margin: 0 auto;">Schreiben Sie uns, welche Töne Sie tragen und wofür Sie das Tuch suchen — Sie erhalten eine ehrliche Empfehlung, keine Verkaufsformel.</p>
+        <p style="margin-top: 32px;"><a class="btn on-dark" href="kontakt.html">Beratung anfragen</a></p>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<!-- FOOTER -->
+<footer>
+  <div class="wrap">
+    <div class="f-top">
+      <div class="f-brand">
+        <span class="nav-wordmark">HIMA</span>
+        <p class="arabic" lang="ar">حِمَى</p>
+        <p>Maison de Modestie. Kuratierte Hijabs und feine Stoffe — entworfen mit Ruhe, geprüft mit Sorgfalt. Rheinland, Deutschland.</p>
+      </div>
+      <div>
+        <h4>Maison</h4>
+        <ul>
+          <li><a href="kollektion.html">Kollektion</a></li>
+          <li><a href="stoffe.html">Stoffe &amp; Pflege</a></li>
+          <li><a href="maison.html">Über uns</a></li>
+          <li><a href="atelier.html">Atelier</a></li>
+          <li><a href="journal.html">Journal</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4>Service</h4>
+        <ul>
+          <li><a href="kontakt.html">Kontakt &amp; FAQ</a></li>
+          <li><a href="kontakt.html#bestellen">So bestellen Sie</a></li>
+          <li><a href="mailto:nouurhijab@gmail.com">nouurhijab@gmail.com</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4>Rechtliches</h4>
+        <ul>
+          <li><a href="impressum.html">Impressum</a></li>
+          <li><a href="datenschutz.html">Datenschutz</a></li>
+          <li><a href="agb.html">AGB</a></li>
+          <li><a href="widerruf.html">Widerruf</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="f-bottom">
+      <span>© <span data-year>2026</span> HIMA · Maison de Modestie</span>
+      <span lang="ar" class="arabic" style="color: var(--gold-lt); letter-spacing: 0;">حِمَى — der geschützte Ort</span>
+    </div>
+  </div>
+</footer>
+
+<!-- DRAWERS -->
+<div id="drawer-backdrop" class="drawer-backdrop" aria-hidden="true"></div>
+<aside id="drawer-bag" class="drawer" role="dialog" aria-modal="true" aria-label="Ihre Tasche">
+  <div class="d-head"><h2>Ihre Tasche</h2><button type="button" class="d-close" aria-label="Schließen">×</button></div>
+  <div class="d-body" id="bag-body"></div>
+  <div class="d-foot" id="bag-foot">
+    <p class="d-total"><span>Zwischensumme</span><span id="bag-total">0,00 €</span></p>
+    <p class="d-hint">Unser Online-Checkout öffnet in Kürze. Bis dahin senden Sie Ihre Auswahl als unverbindliche Anfrage — wir melden uns persönlich innerhalb von 24 Stunden. Falls sich kein E-Mail-Fenster öffnet, schreiben Sie direkt an <a href="mailto:nouurhijab@gmail.com">nouurhijab@gmail.com</a>.</p>
+    <button type="button" class="btn solid" data-inquiry>Auswahl anfragen</button>
+  </div>
+</aside>
+<aside id="drawer-wish" class="drawer" role="dialog" aria-modal="true" aria-label="Ihre Merkliste">
+  <div class="d-head"><h2>Ihre Merkliste</h2><button type="button" class="d-close" aria-label="Schließen">×</button></div>
+  <div class="d-body" id="wish-body"></div>
+</aside>
+
+<script src="assets/js/hima.js"></script>
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const grid = document.getElementById('produkt-grid');
+    const status = document.getElementById('filter-status');
+    const buttons = document.querySelectorAll('[data-filter]');
+
+    function show(kat) {
+      const list = kat === 'alle' ? HIMA.PRODUKTE : HIMA.PRODUKTE.filter(p => p.kat === kat);
+      HIMA.renderGrid(grid, list);
+      grid.querySelectorAll('.reveal').forEach(el => el.classList.add('in'));
+      status.textContent = list.length + ' Produkte angezeigt' + (kat === 'alle' ? '' : ' — Kategorie ' + kat);
+      buttons.forEach(b => b.setAttribute('aria-pressed', String(b.dataset.filter === kat)));
+    }
+
+    buttons.forEach(b => b.addEventListener('click', () => show(b.dataset.filter)));
+
+    // Deep-Link: kollektion.html?kat=Jersey
+    const kat = new URLSearchParams(location.search).get('kat');
+    const valid = ['Jersey', 'Bamboo', 'Feine Stoffe', 'Accessoires'];
+    show(valid.includes(kat) ? kat : 'alle');
+  });
+</script>
+</body>
+</html>

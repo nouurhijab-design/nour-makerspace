@@ -8,5 +8,11 @@
 Thumbs.db
 desktop.ini
 
-# Komprimierte Archive (nur temporäre)
-files.zip
+# Komprimierte Archive
+*.zip
+
+# Office-Sperrdateien (LibreOffice/Word)
+.~lock.*#
+
+# MCP-Zugangsdaten / lokale Auth (kein Secret ins Repo)
+.mcp.json

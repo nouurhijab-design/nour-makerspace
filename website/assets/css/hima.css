@@ -186,6 +186,8 @@ h3 { font-size: 20px; letter-spacing: .04em; }
 
 /* ── Layout ── */
 main { padding-top: var(--nav-h); }
+/* Anker-Sprünge (#farbwelten etc.) nicht unter der fixen Nav verstecken */
+:target, section[id], [id^="farbwelten"] { scroll-margin-top: calc(var(--nav-h) + 20px); }
 .wrap { max-width: 1280px; margin: 0 auto; padding: 0 44px; }
 section { padding: 96px 0; }
 .section-head { max-width: 620px; margin-bottom: 56px; }

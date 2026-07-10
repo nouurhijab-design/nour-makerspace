@@ -1,0 +1,6 @@
+{
+  "folder": "content/Taeglich",
+  "format": "YYYY-MM-DD",
+  "template": "templates/Tagesnotiz_Vorlage",
+  "autorun": false
+}

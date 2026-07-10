@@ -1,24 +1,29 @@
-# NOUR — MakerSpace Projekt
+# NOUR — HIMA · Maison de Modestie
 
-NOUR ist ein kreatives MakerSpace-Projekt mit Fokus auf nachhaltige Materialien, Designlösungen und Community-Workshops.
-
-## Inhalte
-
-- **Produktdossiers** — 5 ausgearbeitete Produktkonzepte
-- **Anleitungen** — Schritt-für-Schritt-Guides für Phase 1
-- **Brand Strategy** — Markenstrategie und visuelle Identität (HIMA)
-- **Problemlösungen** — 10 Probleme, 100 Lösungen
+NOUR ist das Projektverzeichnis hinter **HIMA** (حِمَى — „der geschützte Ort"), einer Premium-Marke für modest fashion mit Kernprodukt Hijabs. Entstanden aus dem MakerSpace-Projekt NOUR.
 
 ## Projektstruktur
 
 ```
 NOUR/
-├── NOUR Anleitung Phase1.pdf
-├── NOUR 5 Produktdossiers MakerSpace.pdf
-├── NOUR 10 Probleme 100 Loesungen.pdf
-├── HIMA_Brand_Strategy.docx
-└── Safelle Stoffkartei.pdf
+├── HIMA-OS/            → Wissensbasis & Steuerzentrale (Obsidian-Vault)
+│   ├── 00_START.md     → Dashboard / Einstiegsseite
+│   ├── quellen/        → Brand Strategy, NOUR-Dossiers, Stoffkartei
+│   ├── agents/         → Agenten-Systemprompts (CEO, Content, Assets …)
+│   ├── launch/         → Launch-Playbooks (Shopify, Klaviyo, IG, Influencer)
+│   ├── growth/         → SEO, Meta Ads, Dashboard
+│   ├── docs/           → SOPs, Bildanalysen, Indizes, Asset-Landkarte
+│   ├── reports/        → Tagesberichte & Wochenreviews
+│   └── content/        → Tagesnotizen & Content-Planung
+├── website/            → Produktions-Website (statisch, 22 Seiten)
+├── app/                → App-Prototyp
+├── HIMA_Design/        → Designsystem (Logos, Social-Templates, Prompts)
+├── HIMA Fotos V.1.1/   → Kuratierte Produktfotos
+├── Safelle Bilder|fotos/ → Altbestand Lieferantenfotos (nicht verwenden)
+└── _archiv/            → Altes & Duplikate (aus Git ausgeschlossen)
 ```
+
+**Einstieg:** `HIMA-OS/00_START.md` (in Obsidian öffnen: „Open folder as vault" → `HIMA-OS`).
 
 ## Kontakt
 

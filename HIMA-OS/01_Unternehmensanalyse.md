@@ -14,7 +14,7 @@ Empfehlung: In den ersten 90 Tagen radikal fokussieren auf 1–3 Hero-Produkte, 
 
 **Markenidentität** — Stark. Wortbild final, Werte klar, Palette definiert. *Schwäche:* Logo noch nicht als sauberer Vektor; keine konsistente Anwendung über alle Touchpoints (Brand Guidelines existieren, müssen gelebt werden).
 
-**Markenstrategie** — Klar positioniert (siehe HIMA_Brand_Strategy.docx). *Schwäche:* Noch keine schriftlich fixierte Tonalität/Markenstimme und Storytelling-Bibel.
+**Markenstrategie** — Klar positioniert (siehe quellen/HIMA_Brand_Strategy.docx). *Schwäche:* Noch keine schriftlich fixierte Tonalität/Markenstimme und Storytelling-Bibel.
 
 **Produktstrategie** — Kernprodukt Premium-Hijab definiert. *Schwäche:* Kein klares Hero-/Held-Produkt mit Signature-Story; Sortimentstiefe vs. -breite nicht entschieden; Margenstruktur nicht dokumentiert.
 

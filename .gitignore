@@ -11,6 +11,14 @@ desktop.ini
 # Komprimierte Archive
 *.zip
 
+# Archiv (Altbestand, Duplikate, Starterkits — nicht Teil des aktiven Systems)
+_archiv/
+
+# Obsidian: Workspace/Cache sind gerätespezifisch, Vault-Konfig bleibt im Repo
+HIMA-OS/.obsidian/workspace.json
+HIMA-OS/.obsidian/workspace-mobile.json
+HIMA-OS/.obsidian/cache/
+
 # Office-Sperrdateien (LibreOffice/Word)
 .~lock.*#
 

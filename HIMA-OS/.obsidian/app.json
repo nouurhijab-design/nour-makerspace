@@ -1,0 +1,10 @@
+{
+  "alwaysUpdateLinks": true,
+  "newFileLocation": "folder",
+  "newFileFolderPath": "content",
+  "attachmentFolderPath": "assets/anhaenge",
+  "useMarkdownLinks": false,
+  "showUnsupportedFiles": true,
+  "strictLineBreaks": false,
+  "readableLineLength": true
+}

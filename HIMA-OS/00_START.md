@@ -25,6 +25,14 @@ cssclasses:
 
 ---
 
+## 🧠 Gehirn (gehirn/)
+
+> [!note] Der selbstverbessernde Kreislauf
+> **[[GEHIRN]]** — wie HIMA wahrnimmt, erinnert, entscheidet und lernt
+> [[Markt-Radar]] 👁️ · [[KPI-Cockpit]] 📊 · [[Lern-Log]] 📓
+
+---
+
 ## 🧭 Strategie & Fundament
 
 | Dokument | Inhalt |

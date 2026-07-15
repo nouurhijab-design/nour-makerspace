@@ -34,5 +34,9 @@ _Erstellt: 28.06.2026 · Automatisiert über geplante Aufgaben (Scheduler). Vera
 3. 1 Content-Freigabe + Eskalationen entscheiden.
 
 ## Status der Automationen
-- ✅ **Tagesbericht** (08:05) — aktiv.
-- ☐ Weitere Routinen: als geplante Aufgaben einrichten (siehe Onboarding-Agent). Freigabe/Trigger durch Nour, da einige Connector-Zugriffe (Shopify/IG) nutzen.
+_Aktualisiert 12.07.2026 — als geplante Aufgaben in der Claude-App eingerichtet (laufen, solange die App geöffnet ist; sonst Nachholung beim nächsten Start)._
+- ✅ **Tagesbericht** (täglich 08:05) — eingerichtet; schreibt `reports/` + füttert das [[GEHIRN|Gehirn]].
+- ✅ **Markt-Radar-Scan** (Mi 09:00) — eingerichtet; schreibt [[Markt-Radar]].
+- ✅ **KPI- & Wochen-Review** (Fr 16:00) — eingerichtet; schreibt [[KPI-Cockpit]] + `reports/Wochenreview_…`.
+- ☐ Mo-Wochenplanung + IG-Wochenpaket: bewusst noch manuell (Content braucht Nours Freigabe ohnehin).
+- Regel: Alle Routinen arbeiten nur lesend/lokal — **keine externen Aktionen ohne Freigabe Nour**.

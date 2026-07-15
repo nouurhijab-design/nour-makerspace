@@ -24,3 +24,7 @@ HIMA-OS/.obsidian/cache/
 
 # MCP-Zugangsdaten / lokale Auth (kein Secret ins Repo)
 .mcp.json
+
+# Safelle-Lieferantenfotos (Fremdmarke, gesperrt) — bleiben lokal/OneDrive, nicht im Repo
+Safelle Bilder/
+Safelle fotos/

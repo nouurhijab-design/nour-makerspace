@@ -6,6 +6,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="theme-color" content="#2C1A10">
+<link rel="manifest" href="manifest.json">
 <title>HIMA — Die App der Maison</title>
 <meta name="description" content="Die HIMA-App: Kollektion, persönliche Stoffberatung mit Amira, Farbpass-Fragebogen und Ihre Merkliste — die Maison de Modestie für unterwegs.">
 <link rel="icon" href="../website/assets/img/favicon.svg" type="image/svg+xml">
@@ -17,7 +18,7 @@
      HIMA App v2.0 — Screens statt Seiten, aber echtes App-Gefühl:
      Stack-Navigation mit Slide-Übergängen, Tab-Bar, Amira-Demo.
      Palette & Typografie gemäß hima-brand Skill (bindend).
-     Amira läuft im Demo-Modus — kein API-Key im Client (Regel 6.2).
+     Amira läuft offline über das gemeinsame Gehirn (amira-brain.js).
      ============================================================ */
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -271,6 +272,20 @@
   .swatch-row { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 14px; }
   .swatch { width: 38px; height: 38px; border-radius: 50%; border: 1px solid var(--sand); }
 
+  .am-typing { display: inline-flex; gap: 5px; }
+  .am-typing i { width: 6px; height: 6px; border-radius: 50%; background: var(--taupe); animation: amDot 1.2s infinite; }
+  .am-typing i:nth-child(2) { animation-delay: .18s; } .am-typing i:nth-child(3) { animation-delay: .36s; }
+  @keyframes amDot { 0%, 60%, 100% { opacity: .35; transform: none; } 30% { opacity: 1; transform: translateY(-3px); } }
+  .msg-cards { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; max-width: 84%; margin-bottom: 12px; }
+  .msg-card { background: #fff; border: 1px solid var(--sand); padding: 0 0 10px; text-align: left; cursor: pointer; font-family: var(--sans); }
+  .msg-card img { width: 100%; aspect-ratio: 4/3; object-fit: cover; display: block; }
+  .msg-card .mc-n { display: block; font-family: var(--display); font-size: 13.5px; color: var(--espresso); padding: 8px 10px 0; }
+  .msg-card .mc-p { display: block; font-family: var(--serif); font-size: 13px; color: var(--taupe-tx); padding: 2px 10px 0; }
+  .fp-swatches { display: flex; gap: 14px; flex-wrap: wrap; margin-top: 16px; }
+  .fp-sw { text-align: center; }
+  .fp-sw i { display: block; width: 46px; height: 46px; border-radius: 50%; border: 1px solid var(--sand); margin: 0 auto; }
+  .fp-sw span { display: block; font-family: var(--serif); font-size: 12.5px; margin-top: 5px; color: var(--espresso); }
+
   /* ── Onboarding ── */
   #onboarding {
     position: absolute; inset: 0; z-index: 100; background: var(--espresso);
@@ -387,7 +402,7 @@
       <div class="feature-card light">
         <p class="overline">Dein Ton</p>
         <h3>Der Farbpass-Fragebogen</h3>
-        <p>Vier Fragen, ein Ergebnis: die Farbwelt, die Ihnen steht — als Grundlage für Ihren persönlichen Farbpass.</p>
+        <p>Acht Fragen, drei Dimensionen — Unterton, Tiefe, Kontrast. Ihr persönlicher Farbpass mit den Tönen, die Sie leuchten lassen.</p>
         <button type="button" class="btn" data-nav="farbpass">Fragebogen starten</button>
       </div>
 
@@ -428,7 +443,7 @@
 
     <!-- AMIRA -->
     <section class="screen" id="s-amira" aria-label="Amira — Ihre Beraterin">
-      <p class="amira-badge">Amira · Beraterin der Maison · Demo-Modus</p>
+      <p class="amira-badge">Amira · Beraterin der Maison · offline bereit</p>
       <div id="amira-log" role="log" aria-live="polite"></div>
       <div id="amira-input-row">
         <div id="amira-sugg"></div>
@@ -554,65 +569,17 @@
   <div id="toast" role="status"></div>
 </div>
 
+<script src="../website/assets/js/amira-brain.js"></script>
 <script>
 /* ============================================================
-   HIMA App — Logik. Preise: bindende Liste (Juli 2026).
+   HIMA App — Logik. Produkte, Amira & Farbpass kommen aus dem
+   gemeinsamen Gehirn (amira-brain.js) — eine Quelle für alles.
    ============================================================ */
 (() => {
   const MAIL = 'nouurhijab@gmail.com';
 
-  const PRODUKTE = [
-    { id: 'liquid-jersey', name: 'Liquid Jersey', kat: 'Jersey', preis: 14.00,
-      imgs: ['assets/img/editorial-schwarz-01.jpg'],
-      kurz: 'Fließender Fall, weicher Griff — der Jersey für Tage in Bewegung.',
-      desc: 'Ein Jersey mit fließendem Fall — er liegt weich auf, folgt jeder Bewegung und behält den Tag über seine Form. Blickdicht, reibungsarm und unkompliziert im Alltag.',
-      masse: 'ca. 185 × 70 cm · ca. 220–280 g/m²', pflege: '30 °C Schonwäsche · kein Trockner · liegend trocknen' },
-    { id: 'premium-jersey', name: 'Premium Jersey', kat: 'Jersey', preis: 13.00,
-      imgs: ['assets/img/editorial-grau-01.jpg'],
-      kurz: 'Der Klassiker der Maison: dicht, matt, blickdicht.',
-      desc: 'Der Klassiker der Maison: dicht gearbeiteter Jersey mit mattem Finish. Formstabil, blickdicht und angenehm unkompliziert — das Tuch für jeden Tag.',
-      masse: 'ca. 185 × 70 cm · ca. 220–280 g/m²', pflege: '30 °C Schonwäsche · kein Trockner · liegend trocknen' },
-    { id: 'premium-jersey-satin', name: 'Premium Jersey Satin', kat: 'Jersey', preis: 15.00,
-      imgs: ['assets/img/editorial-mauve-02.jpg', 'assets/img/editorial-creme-01.jpg'],
-      kurz: 'Die festliche Seite des Jerseys — ein leiser, matter Schimmer.',
-      desc: 'Die festliche Seite des Jerseys: ein leiser, matter Schimmer über weichem Griff. Für Abende, Feste und Momente, die in Erinnerung bleiben.',
-      masse: 'ca. 185 × 70 cm · ca. 220–280 g/m²', pflege: '30 °C Schonwäsche · auf links bügeln' },
-    { id: 'premium-jersey-wellen', name: 'Premium Jersey mit Wellen', kat: 'Jersey', preis: 13.50,
-      imgs: ['assets/img/editorial-marine-02.jpg'],
-      kurz: 'Feine Wellenstruktur, die das Licht bricht.',
-      desc: 'Eine feine Wellenstruktur, die das Licht bricht — Textur, die man sieht und spürt. Für alle, die Understatement mit Charakter tragen.',
-      masse: 'ca. 185 × 70 cm · ca. 220–280 g/m²', pflege: '30 °C Schonwäsche · kein Trockner · liegend trocknen' },
-    { id: 'bamboo', name: 'Bamboo', kat: 'Bamboo', preis: 12.00,
-      imgs: ['assets/img/editorial-salbei-02.jpg', 'assets/img/drape-salbei-01.jpg'],
-      kurz: 'Bambusviskose: leicht, atmungsaktiv, angenehm auf der Haut.',
-      desc: 'Bambusviskose in ihrer leichtesten Form: atmungsaktiv, angenehm temperierend und weich auf der Haut. Für lange Tage und warme Monate.',
-      masse: 'ca. 185 × 70 cm · ca. 160–190 g/m²', pflege: 'Handwäsche · nicht wringen · liegend trocknen' },
-    { id: 'premium-bamboo', name: 'Premium Bamboo', kat: 'Bamboo', preis: 14.00,
-      imgs: ['assets/img/editorial-taupe-01.jpg', 'assets/img/drape-taupe-01.jpg'],
-      kurz: 'Die leichteste Qualität in dichter Ausführung — sanft zum Haaransatz.',
-      desc: 'Unsere leichteste Qualität in dichterer Ausführung: der elegante Fall von Bambusviskose mit mehr Substanz. Sanft zum Haaransatz, atmungsaktiv, ruhig im Ausdruck.',
-      masse: 'ca. 185 × 70 cm · ca. 160–190 g/m²', pflege: 'Handwäsche · nicht wringen · liegend trocknen' },
-    { id: 'medina-seide', name: 'Medina Seide', kat: 'Feine Stoffe', preis: 10.00,
-      imgs: ['assets/img/editorial-taupe-02.jpg'],
-      kurz: 'Seidig-matter Griff, feine Crêpe-Struktur — hält ohne Nadel.',
-      desc: 'Seidig-matter Griff auf feiner Crêpe-Struktur: Medina hält die Drapierung auch ohne Nadel und bewahrt den ganzen Tag ihre Form. (Keine Maulbeerseide.)',
-      masse: 'ca. 185 × 70 cm · leichte Qualität', pflege: 'Kalte Handwäsche · Dampf statt Druck' },
-    { id: 'chiffon', name: 'Chiffon', kat: 'Feine Stoffe', preis: 8.00,
-      imgs: ['assets/img/editorial-creme-02.jpg'],
-      kurz: 'Transparente Leichtigkeit für besondere Stunden.',
-      desc: 'Transparente Leichtigkeit für gelegte Lagen: Chiffon bringt Tiefe in jede Drapierung und bleibt dabei federleicht. Für besondere Stunden.',
-      masse: 'ca. 185 × 70 cm · ca. 40–60 g/m²', pflege: 'Kalte Handwäsche · hängend trocknen · Dampf' },
-    { id: 'bonnet', name: 'Bonnet', kat: 'Accessoires', preis: 4.50,
-      imgs: ['assets/img/flatlay-01.jpg'],
-      kurz: 'Die Basis unter jedem Tuch — sicher, reibungsarm, atmungsaktiv.',
-      desc: 'Die Basis unter jedem Tuch: unser Bonnet hält sicher, ohne zu ziehen — reibungsarm, atmungsaktiv und unsichtbar unter jeder Drapierung.',
-      masse: 'Einheitsgröße mit sanftem Stretch', pflege: '30 °C im Wäschenetz · kein Trockner' },
-    { id: 'nadeln', name: 'Nadeln', kat: 'Accessoires', preis: 1.50,
-      imgs: ['assets/img/flatlay-01.jpg'],
-      kurz: 'Feine Nadeln mit sicherem Halt.',
-      desc: 'Feine Nadeln mit sicherem Halt — das stille Werkzeug jeder Drapierung. Glatt poliert, damit sie feine Stoffe nicht zeichnen.',
-      masse: 'Set mit mehreren Nadeln', pflege: 'Trocken aufbewahren · von Kindern fernhalten' }
-  ];
+  const B = window.HIMA_BRAIN;
+  const PRODUKTE = B.KATALOG.map(p => ({ ...p, imgs: p.imgs.map(f => 'assets/img/' + f) }));
   const byId = id => PRODUKTE.find(p => p.id === id);
   const fmt = n => n.toFixed(2).replace('.', ',') + ' €';
 
@@ -663,7 +630,7 @@
   document.querySelectorAll('[data-nav]').forEach(b => b.addEventListener('click', () => {
     const target = b.dataset.nav;
     if (target === 'shop' || target === 'amira') goTab(target);
-    else if (target === 'farbpass') { renderQuiz(0, []); push('s-farbpass'); }
+    else if (target === 'farbpass') { renderQuiz(); push('s-farbpass'); }
     else if (target === 'pflege') push('s-pflege');
   }));
 
@@ -788,45 +755,7 @@
       </div>`; }).join('');
   }
 
-  /* — Amira (Demo-Modus, regelbasiert — kein API-Key im Client) — */
-  const AMIRA_SUGG = ['Welcher Stoff für den Alltag?', 'Was passt zu meinem Hautton?', 'Wie pflege ich Chiffon?', 'Was kostet Premium Bamboo?', 'Wie bestelle ich?'];
-  function amiraAnswer(q) {
-    const s = q.toLowerCase();
-    if (/(hallo|salam|guten|hey|hi)\b/.test(s))
-      return 'Herzlich willkommen in der Maison. Ich bin Amira und berate Sie gern zu Stoffen, Farben und Pflege. Was darf ich Ihnen zeigen?';
-    if (/(alltag|arbeit|uni|täglich|jeden tag|büro)/.test(s))
-      return 'Für den Alltag empfehle ich unsere Jerseys: Der Premium Jersey (13,00 €) ist dicht, matt und formstabil — er sitzt, ohne dass Sie nachfassen müssen. Wenn Sie viel in Bewegung sind, greifen Sie zum Liquid Jersey (14,00 €) mit fließendem Fall.';
-    if (/(sommer|warm|heiß|leicht|atmung)/.test(s))
-      return 'Für warme Tage sind unsere Bamboo-Qualitäten gemacht: leicht, atmungsaktiv und angenehm temperierend. Bamboo (12,00 €) ist die leichteste Wahl, Premium Bamboo (14,00 €) fällt dichter und eleganter.';
-    if (/(fest|abend|hochzeit|anlass|feier|besonder)/.test(s))
-      return 'Für besondere Stunden: Premium Jersey Satin (15,00 €) mit leisem Schimmer — oder Chiffon (8,00 €) für gelegte Lagen mit Tiefe. Beide wirken am schönsten in ruhigen Tönen wie Creme oder Mauve.';
-    if (/(hautton|teint|farbe|ton|steht mir|welche farbe)/.test(s))
-      return 'Farben sind sehr persönlich. Als Faustregel: Warme Hauttöne leuchten mit Creme, Taupe und Olive; kühlere Nuancen tragen Grau, Marine und Mauve besonders schön. Am genauesten wird es mit unserem Farbpass-Fragebogen — Sie finden ihn auf der Startseite unter „Dein Ton".';
-    if (/(pflege|waschen|bügeln|trocknen|knitter)/.test(s))
-      return 'Kurz gefasst: Jersey und Bamboo mögen 30 °C Schonwäsche und trocknen liegend. Medina und Chiffon bitte kalt von Hand waschen und lieber dämpfen als bügeln. Den vollständigen Pflege-Guide finden Sie unter „Mehr".';
-    if (/(medina|seide)/.test(s))
-      return 'Medina Seide (10,00 €) hat einen seidig-matten Griff und eine feine Crêpe-Struktur — sie hält die Drapierung auch ohne Nadel. Ein ehrliches Wort: Es ist keine Maulbeerseide, der Name beschreibt die Qualitätsklasse.';
-    if (/(chiffon)/.test(s))
-      return 'Chiffon (8,00 €) ist unsere leichteste Qualität — halbtransparent und federleicht. Er wird meist in Lagen oder über einem Bonnet (4,50 €) getragen und pflegt sich am liebsten mit kalter Handwäsche.';
-    if (/(jersey)/.test(s))
-      return 'Unsere Jersey-Familie: Premium Jersey (13,00 €) als Klassiker, Liquid Jersey (14,00 €) mit fließendem Fall, Premium Jersey Satin (15,00 €) für festliche Momente und Premium Jersey mit Wellen (13,50 €) für spürbare Textur.';
-    if (/(bamboo|bambus)/.test(s))
-      return 'Bamboo (12,00 €) ist leicht und atmungsaktiv — ideal für warme Monate. Premium Bamboo (14,00 €) ist dichter gearbeitet und fällt eleganter; er ist eine unserer beliebtesten Qualitäten.';
-    if (/(preis|kost|teuer|günstig)/.test(s))
-      return 'Unsere aktuelle Preisliste: Chiffon 8,00 € · Medina Seide 10,00 € · Bamboo 12,00 € · Premium Jersey 13,00 € · Jersey mit Wellen 13,50 € · Liquid Jersey und Premium Bamboo je 14,00 € · Premium Jersey Satin 15,00 € · Bonnet 4,50 € · Nadeln 1,50 €.';
-    if (/(bestell|kauf|checkout|zahl|liefer|versand)/.test(s))
-      return 'Derzeit bestellen Sie per persönlicher Anfrage: Legen Sie Ihre Auswahl in die Tasche und senden Sie sie ab — Ihr E-Mail-Programm öffnet sich mit der fertigen Liste. Wir antworten innerhalb von 24 Stunden mit Verfügbarkeit und Farbkarte. Der Online-Checkout öffnet in Kürze.';
-    if (/(magnet|maghnatis|verschluss|nadel)/.test(s))
-      return 'Der Maghnatis ist unser Signature-Magnetverschluss in Entwicklung — er hält die Drapierung, ohne den Stoff zu durchstechen. Er entsteht in kleinen Serien im MakerSpace Mönchengladbach. Über die Warteliste erfahren Sie zuerst vom Start. Bitte beachten Sie: Magnetprodukte gehören nicht in Kinderhände.';
-    if (/(bonnet|untertuch)/.test(s))
-      return 'Das Bonnet (4,50 €) ist die Basis unter jedem Tuch: Es hält sicher, ohne zu ziehen — reibungsarm und atmungsaktiv. Besonders unter Chiffon und Medina eine gute Grundlage.';
-    if (/(haar|kopfhaut|gesund|ausfall)/.test(s))
-      return 'Wir achten bei allen Qualitäten auf reibungsarme Oberflächen und Materialien, die sanft zum Haaransatz sind. Bei medizinischen Fragen rund um Haar oder Kopfhaut wenden Sie sich bitte an Ihre Ärztin — das kann und darf ich nicht beurteilen.';
-    if (/(danke|schukran|shukran)/.test(s))
-      return 'Sehr gern. Wenn Sie mögen, schauen Sie noch beim Farbpass-Fragebogen vorbei — oder schreiben Sie uns direkt: ' + MAIL + '. Die Maison freut sich auf Sie.';
-    return 'Das nehme ich gern mit in die Maison — in dieser Vorschau kenne ich vor allem unsere Stoffe, Farben, Preise und die Pflege. Fragen Sie mich zum Beispiel: „Welcher Stoff für den Alltag?" oder „Was passt zu meinem Hautton?" Für alles andere: ' + MAIL;
-  }
-
+  /* — Amira (gemeinsames Gehirn, offline) — */
   function amiraSay(text, who) {
     const log = document.getElementById('amira-log');
     const div = document.createElement('div');
@@ -835,9 +764,52 @@
     log.appendChild(div);
     log.scrollTop = log.scrollHeight;
   }
+  function amiraCards(ids) {
+    if (!ids || !ids.length) return;
+    const log = document.getElementById('amira-log');
+    const div = document.createElement('div');
+    div.className = 'msg-cards';
+    div.innerHTML = ids.map(id => { const p = byId(id); return p ? `
+      <button class="msg-card" type="button" data-pdp="${p.id}">
+        <img src="${p.imgs[0]}" alt="${p.name}" loading="lazy">
+        <span class="mc-n">${p.name}</span><span class="mc-p">${fmt(p.preis)}</span>
+      </button>` : ''; }).join('');
+    log.appendChild(div); log.scrollTop = log.scrollHeight;
+  }
+  function amiraChips(list) {
+    document.getElementById('amira-sugg').innerHTML = (list || []).map(s2 => `<button class="chip" type="button" data-sugg="${s2}">${s2}</button>`).join('');
+  }
+  function amiraAction(action) {
+    if (!action) return;
+    const log = document.getElementById('amira-log');
+    const b = document.createElement('button');
+    b.className = 'chip'; b.type = 'button'; b.style.margin = '0 0 12px';
+    if (action === 'farbpass') {
+      b.textContent = 'Zum Farbpass →';
+      b.addEventListener('click', () => { renderQuiz(); push('s-farbpass'); });
+    } else {
+      b.textContent = action === 'warteliste' ? 'Auf die Warteliste →' : 'E-Mail ans Atelier →';
+      b.addEventListener('click', () => location.href = 'mailto:' + MAIL + (action === 'warteliste' ? '?subject=' + encodeURIComponent('Maghnatis — Warteliste') : ''));
+    }
+    log.appendChild(b); log.scrollTop = log.scrollHeight;
+  }
+  function amiraReply(r) {
+    const log = document.getElementById('amira-log');
+    const t = document.createElement('div');
+    t.className = 'msg amira am-typing'; t.innerHTML = '<i></i><i></i><i></i>';
+    log.appendChild(t); log.scrollTop = log.scrollHeight;
+    setTimeout(() => {
+      t.remove();
+      amiraSay(r.text, 'amira');
+      amiraCards(r.products);
+      amiraAction(r.action);
+      amiraChips(r.chips);
+    }, Math.min(420 + r.text.length * 3, 1400));
+  }
   function amiraAsk(q) {
     amiraSay(q, 'user');
-    setTimeout(() => amiraSay(amiraAnswer(q), 'amira'), 420);
+    amiraChips([]);
+    amiraReply(B.AMIRA.antworten(q));
   }
   document.getElementById('amira-form').addEventListener('submit', e => {
     e.preventDefault();
@@ -847,54 +819,75 @@
     inp.value = '';
     amiraAsk(q);
   });
-  document.getElementById('amira-sugg').innerHTML = AMIRA_SUGG.map(s => `<button class="chip" type="button" data-sugg="${s}">${s}</button>`).join('');
 
-  /* — Farbpass Quiz — */
-  const QUIZ = [
-    { q: 'Wie reagiert Ihre Haut auf Sonne?', a: ['Sie wird schnell goldbraun', 'Sie rötet sich eher', 'Irgendwo dazwischen'] },
-    { q: 'Welcher Schmuckton schmeichelt Ihnen mehr?', a: ['Gold', 'Silber', 'Beides gleich'] },
-    { q: 'Ihre Garderobe ist vor allem …', a: ['Erdig: Beige, Braun, Oliv', 'Kühl: Grau, Marine, Schwarz', 'Gemischt'] },
-    { q: 'Wofür suchen Sie Ihren Ton?', a: ['Für jeden Tag', 'Für besondere Anlässe', 'Für beides'] }
-  ];
-  const QUIZ_RESULT = {
-    warm: { name: 'Warme Erde', text: 'Ihnen schmeicheln warme, erdige Nuancen: Creme, Taupe, Olive und Braun. Sie machen Ihren Teint lebendig, ohne laut zu werden.',
-      farben: ['#E8DCCB', '#8C7767', '#77775C', '#5C4636'], produkte: ['premium-bamboo', 'medina-seide'] },
-    kuehl: { name: 'Stille Tiefe', text: 'Kühle, tiefe Töne stehen Ihnen besonders: Grau, Marine, Mauve und Schwarz. Sie rahmen Ihr Gesicht ruhig und klar.',
-      farben: ['#A8A29B', '#2E3A4E', '#B08E9A', '#1E1A17'], produkte: ['premium-jersey', 'premium-jersey-wellen'] },
-    neutral: { name: 'Die freie Mitte', text: 'Sie tragen beides — Ihre Mitte liegt in ausgewogenen Tönen: Salbei, Grau, Creme und Taupe. Eine Palette, die alles mitmacht.',
-      farben: ['#A9B49A', '#A8A29B', '#E8DCCB', '#8C7767'], produkte: ['bamboo', 'premium-jersey-satin'] }
-  };
-  function renderQuiz(step, answers) {
+  /* — Farbpass (gemeinsame Analyse-Engine: 8 Fragen, 6 Welten) — */
+  const FP = B.FARBPASS;
+  let fpAntworten = [];
+  function renderPass(result) {
     const host = document.getElementById('s-farbpass');
-    if (step >= QUIZ.length) {
-      const warm = answers.filter(a => a === 0).length;
-      const kuehl = answers.filter(a => a === 1).length;
-      const key = warm > kuehl ? 'warm' : kuehl > warm ? 'kuehl' : 'neutral';
-      const r = QUIZ_RESULT[key];
-      host.innerHTML = `
-        <div class="quiz-q">
-          <p class="overline">Ihr Ergebnis</p>
-          <h2 style="font-size: 24px; margin-top: 6px;">${r.name}</h2>
-          <hr class="shelter-line" aria-hidden="true">
-          <p style="font-family: var(--serif); font-size: 17px; line-height: 1.65;">${r.text}</p>
-          <div class="swatch-row" role="img" aria-label="Ihre Farbwelt">${r.farben.map(f => `<span class="swatch" style="background:${f}"></span>`).join('')}</div>
-          <p class="pdp-note" style="margin-top: 16px;">Eine Orientierung, kein Urteil — Ihr persönlicher „Dein Ton"-Farbpass entsteht derzeit im Atelier. Ihre Antworten bleiben auf Ihrem Gerät.</p>
-          <div class="section-label" style="padding-left: 0;"><p class="overline">Aus Ihrer Farbwelt</p></div>
-          <div class="pgrid" style="padding: 0;">${r.produkte.map(id => cardHTML(byId(id))).join('')}</div>
-          <button type="button" class="btn block" style="margin-top: 18px;" id="quiz-restart">Noch einmal</button>
-        </div>`;
-      document.getElementById('quiz-restart').addEventListener('click', () => renderQuiz(0, []));
-      return;
-    }
-    const q = QUIZ[step];
+    const w = result.welt;
+    const meiden = w.meiden.map(([f2, why]) => '<strong>' + B.FARBEN[f2].name + '</strong> — ' + why).join('. ');
     host.innerHTML = `
       <div class="quiz-q">
-        <p class="overline">Dein Ton · Frage ${step + 1} von ${QUIZ.length}</p>
-        <div class="quiz-progress" style="padding: 12px 0 4px;">${QUIZ.map((_, i) => `<span class="${i < step ? 'done' : ''}"></span>`).join('')}</div>
-        <h2 style="font-size: 22px; margin-top: 14px;">${q.q}</h2>
-        ${q.a.map((a, i) => `<button class="quiz-opt" type="button" data-opt="${i}">${a}</button>`).join('')}
+        <p class="overline">Ihr Farbpass · ${result.datum}</p>
+        <h2 style="font-size: 26px; margin-top: 6px;">${w.name}</h2>
+        <p style="font-family: var(--serif); font-size: 15.5px; color: var(--taupe-tx); margin-top: 4px;">${w.sub} · Kontrast: ${result.kontrast}</p>
+        <hr class="shelter-line" aria-hidden="true">
+        <p style="font-family: var(--serif); font-size: 16.5px; line-height: 1.65;">${w.text}</p>
+        <div class="fp-swatches">${w.haupt.map(k => `<div class="fp-sw"><i style="background:${B.FARBEN[k].hex}"></i><span>${B.FARBEN[k].name}</span></div>`).join('')}</div>
+        <p class="pdp-note" style="margin-top: 14px;">${FP.kontrastNote[result.kontrast]} ${w.finish}</p>
+        <p class="pdp-note">Ein ehrliches Wort: ${meiden}. Empfehlungen, keine Verbote.</p>
+        <div class="section-label" style="padding-left: 0;"><p class="overline">Aus Ihrer Farbwelt</p></div>
+        <div class="pgrid" style="padding: 0;">${w.produkte.map(id => cardHTML(byId(id))).join('')}</div>
+        <div style="display: grid; gap: 10px; margin-top: 18px;">
+          <button type="button" class="btn solid block" id="fp-png">Farbpass speichern (Bild)</button>
+          <button type="button" class="btn block" id="fp-amira">Mit Amira besprechen</button>
+          <button type="button" class="btn block" id="fp-again">Analyse wiederholen</button>
+        </div>
       </div>`;
-    host.querySelectorAll('.quiz-opt').forEach(b => b.addEventListener('click', () => renderQuiz(step + 1, [...answers, +b.dataset.opt])));
+    document.getElementById('fp-png').addEventListener('click', () =>
+      FP.toPNG(result, url => { const a = document.createElement('a'); a.href = url; a.download = 'HIMA-Farbpass.png'; a.click(); }));
+    document.getElementById('fp-amira').addEventListener('click', () => { goTab('amira'); amiraAsk('Was sagt mein Farbpass über mich?'); });
+    document.getElementById('fp-again').addEventListener('click', () => renderQuiz());
+  }
+  function renderQuiz(step) {
+    const host = document.getElementById('s-farbpass');
+    if (step === undefined) {
+      fpAntworten = [];
+      const alt = FP.laden();
+      host.innerHTML = `
+        <div class="quiz-q">
+          <p class="overline">Dein Ton</p>
+          <h2 style="font-size: 24px; margin-top: 6px;">Der Farbpass</h2>
+          <hr class="shelter-line" aria-hidden="true">
+          <p style="font-family: var(--serif); font-size: 16.5px; line-height: 1.65;">Acht Fragen zu Unterton, Tiefe und Kontrast — Ihre persönliche Farbwelt in zwei Minuten. Alles bleibt auf Ihrem Gerät.</p>
+          <div style="display: grid; gap: 10px; margin-top: 18px;">
+            <button type="button" class="btn solid block" id="fp-start">Analyse beginnen</button>
+            ${alt ? `<button type="button" class="btn block" id="fp-old">Mein Pass ansehen: „${alt.welt.name}“</button>` : ''}
+          </div>
+        </div>`;
+      document.getElementById('fp-start').addEventListener('click', () => renderQuiz(0));
+      const old = document.getElementById('fp-old');
+      if (old) old.addEventListener('click', () => renderPass(alt));
+      return;
+    }
+    const f = FP.fragen[step];
+    host.innerHTML = `
+      <div class="quiz-q">
+        <p class="overline">Dein Ton · Frage ${step + 1} von ${FP.fragen.length}</p>
+        <div class="quiz-progress" style="padding: 12px 0 4px;">${FP.fragen.map((_, i) => `<span class="${i < step ? 'done' : ''}"></span>`).join('')}</div>
+        <h2 style="font-size: 21px; margin-top: 14px;">${f.q}</h2>
+        ${f.hint ? `<p style="font-family: var(--serif); font-size: 14.5px; color: var(--taupe-tx); margin-top: 8px;">${f.hint}</p>` : ''}
+        ${f.a.map((a, i) => `<button class="quiz-opt" type="button" data-opt="${i}">${a.t}</button>`).join('')}
+        ${step > 0 ? '<button type="button" class="li-x" id="fp-back" style="margin-top: 16px;">← Zurück</button>' : ''}
+      </div>`;
+    host.querySelectorAll('.quiz-opt').forEach(b => b.addEventListener('click', () => {
+      fpAntworten[step] = f.a[+b.dataset.opt];
+      if (step + 1 < FP.fragen.length) renderQuiz(step + 1);
+      else { const result = FP.auswerten(fpAntworten); FP.speichern(result); renderPass(result); }
+    }));
+    const back = document.getElementById('fp-back');
+    if (back) back.addEventListener('click', () => renderQuiz(step - 1));
   }
 
   /* — Onboarding — */
@@ -942,8 +935,13 @@
   renderWish();
   counts();
   show('s-home');
-  amiraSay('Herzlich willkommen, schön dass Sie da sind. Ich bin Amira, die Beraterin der Maison. Fragen Sie mich nach Stoffen, Farben, Preisen oder Pflege — oder tippen Sie auf einen Vorschlag.', 'amira');
+  amiraReply(B.AMIRA.begruessung());
 })();
+</script>
+<script>
+if ('serviceWorker' in navigator && location.protocol.indexOf('http') === 0) {
+  navigator.serviceWorker.register('sw.js');
+}
 </script>
 </body>
 </html>

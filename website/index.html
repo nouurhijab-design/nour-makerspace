@@ -40,6 +40,7 @@
   <ul class="nav-links">
     <li><a href="kollektion.html">Kollektion</a></li>
     <li><a href="stoffe.html">Stoffe</a></li>
+    <li><a href="farbpass.html">Dein Ton</a></li>
     <li><a href="maison.html">Maison</a></li>
     <li><a href="atelier.html">Atelier</a></li>
     <li><a href="journal.html">Journal</a></li>
@@ -63,6 +64,7 @@
   <nav aria-label="Mobile Navigation">
     <a href="kollektion.html">Kollektion</a>
     <a href="stoffe.html">Stoffe</a>
+    <a href="farbpass.html">Dein Ton</a>
     <a href="maison.html">Maison</a>
     <a href="atelier.html">Atelier</a>
     <a href="journal.html">Journal</a>
@@ -155,19 +157,19 @@
         <p class="lead">Unsere Farben leben erst auf echter Haut. Vier Frauen, vier Charaktere — und der eine Ton, der zu Ihnen spricht.</p>
       </div>
       <div class="grid-4">
-        <a class="tile reveal" href="#farbwelten">
+        <a class="tile reveal" href="#farbwelten" data-fw="mauve">
           <img src="assets/img/face-mauve.jpg" alt="Frau mit HIMA-Hijab in Mauve vor warmem, cremefarbenem Hintergrund" loading="lazy">
           <span class="tile-label"><span class="t1">Mauve</span><span class="t2">Warm &amp; romantisch</span></span>
         </a>
-        <a class="tile reveal" href="#farbwelten">
+        <a class="tile reveal" href="#farbwelten" data-fw="schwarz">
           <img src="assets/img/face-espresso.jpg" alt="Frau mit HIMA-Hijab in Espresso-Braun" loading="lazy">
           <span class="tile-label"><span class="t1">Espresso</span><span class="t2">Tief &amp; geborgen</span></span>
         </a>
-        <a class="tile reveal" href="#farbwelten">
+        <a class="tile reveal" href="#farbwelten" data-fw="taupe">
           <img src="assets/img/face-taupe.jpg" alt="Frau mit HIMA-Hijab in Taupe-Grau" loading="lazy">
           <span class="tile-label"><span class="t1">Taupe</span><span class="t2">Ruhig &amp; zeitlos</span></span>
         </a>
-        <a class="tile reveal" href="#farbwelten">
+        <a class="tile reveal" href="#farbwelten" data-fw="salbei">
           <img src="assets/img/face-salbei.jpg" alt="Frau mit HIMA-Hijab in Salbei-Grün" loading="lazy">
           <span class="tile-label"><span class="t1">Salbei</span><span class="t2">Frisch &amp; gelassen</span></span>
         </a>
@@ -200,6 +202,10 @@
           </div>
           <p class="fw-name" id="fw-name" aria-live="polite">Salbei</p>
           <p style="font-size: 12.5px; color: rgba(244,239,230,.6); margin-top: 8px;">Darstellung zur Orientierung — die Verfügbarkeit je Qualität teilen wir Ihnen gern mit.</p>
+          <div style="display: flex; gap: 12px; flex-wrap: wrap; margin-top: 26px;">
+            <a class="btn on-dark" href="farbpass.html">Welcher Ton bin ich? — Der Farbpass</a>
+            <button type="button" class="btn on-dark" data-amira="Welche Farbe steht mir?">Amira fragen</button>
+          </div>
         </div>
       </div>
     </div>
@@ -372,7 +378,17 @@
         name.textContent = btn.dataset.name;
       });
     });
+
+    // Gesichter → passenden Ton in den Farbwelten vorauswählen
+    document.querySelectorAll('[data-fw]').forEach(tile => {
+      tile.addEventListener('click', () => {
+        const target = document.querySelector('.fw-swatch[data-farbe="' + tile.dataset.fw + '"]');
+        if (target) target.click();
+      });
+    });
   });
 </script>
+<script src="assets/js/amira-brain.js"></script>
+<script src="assets/js/amira-widget.js"></script>
 </body>
 </html>

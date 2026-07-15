@@ -1,0 +1,14 @@
+{
+  "name": "HIMA — Maison de Modestie",
+  "short_name": "HIMA",
+  "description": "Kollektion, Beraterin Amira und Ihr Farbpass — die Maison für unterwegs. Funktioniert auch offline.",
+  "lang": "de",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#2C1A10",
+  "theme_color": "#2C1A10",
+  "icons": [
+    { "src": "../website/assets/img/favicon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }
+  ]
+}

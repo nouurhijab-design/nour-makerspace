@@ -12,7 +12,7 @@ _Letzte Aktualisierung: 15.07.2026 (Mi) — **Stillstand bestätigt (verifiziert
 - ◐ Markenidentität finalisieren: Wortbild (✅ Entwurf steht), Logo als Vektor/PNG/SVG exportieren (offen: Canva-Kontingent)
 - ✅ Markenrechtsprüfung „HIMA" Klasse 25 — **positiv** (25.06.). Gate offen, Invest in Domain/Print/Shopify freigegeben.
 - ☐ **[NÄCHSTE AKTION]** Eigene Marke „HIMA" anmelden (EUIPO/DPMA Klasse 25) zur Sicherung
-- ☐ **[NÄCHSTE AKTION]** Domains sofort sichern: hima.de + byhima.com
+- ✅ **Domains gesichert: hima.de + byhima.com** (15.07., von Nour gekauft; per DNS-Abfrage verifiziert — beide registriert und aufgelöst). Offen als Folgeschritte: (a) Domains auf Website/Shop zeigen lassen (Vercel bzw. Shopify verbinden), (b) Canonical-/OG-URLs im Website-Code von `hima-maison.com` auf die echte Domain umstellen, (c) E-Mail-Adresse auf eigener Domain einrichten.
 - ℹ️ Rahmenentscheidungen: Budget 6 M = moderat (2.000–8.000 €) · Außenkommunikation = primär Deutsch (HIMA + Arabisch als Markenelemente).
 - ◐ Shopify-Store aufsetzen: **Trial-Konto existiert** (Store „Mein Shop", `r68uqw-px.myshopify.com`, EUR/DE). Offen: Store auf „HIMA" umbenennen, Theme im HIMA-Look, Impressum/DSGVO/Widerruf, **Plan-Upgrade vor Verkaufsstart (Eskalation: Geld)**.
 - ✅ **Katalog vollständig angelegt** (verifiziert 02.07.): **9 Produkte** — 7 Hijab-Linien (Signature Bambus, Premium Jersey, Liquid Jersey, Bamboo Jersey, Premium Jersey Satin, Chiffon, Medina) + 2 Accessoires (Bonnet, Nadeln-3er), je mit Farb-Varianten/Texten/SKUs. „3-fehlende-SKUs" damit erledigt.

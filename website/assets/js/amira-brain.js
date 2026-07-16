@@ -312,8 +312,56 @@ window.HIMA_BRAIN = (() => {
     return { prods: prods.map(p => p.id), cross, farbsatz };
   }
 
+  /* Umgangssprache verstehen: Slang wird vor dem Matching normalisiert */
+  const SLANG = [
+    [/\bhaste\b/gi, 'hast du'], [/\bgibts\b/gi, 'gibt es'], [/\bwillste\b/gi, 'willst du'],
+    [/\bkannste\b/gi, 'kannst du'], [/\bbiste\b/gi, 'bist du'], [/\bmachste\b/gi, 'machst du'],
+    [/\bwas'?n\b/gi, 'was denn'], [/\b(vllt|vlt)\b/gi, 'vielleicht'], [/\biwas\b/gi, 'irgendetwas'],
+    [/\biwie\b/gi, 'irgendwie'], [/\bnix\b/gi, 'nichts'], [/\bwat\b/gi, 'was'],
+    [/\bma\b/gi, 'mal'], [/\bnen\b/gi, 'einen'], [/\bjezz?t?\b/gi, 'jetzt'],
+    [/\b(hidschab|hidjab|hijaab|hedschab)\b/gi, 'hijab'], [/\bkopftuch\b/gi, 'hijab'],
+    [/\bwie läufts\b/gi, 'wie geht es dir'], [/\balles fit\b/gi, 'wie geht es dir'],
+    [/\bwas geht\b/gi, 'hallo wie geht es dir'], [/\bzeig her\b/gi, 'zeig mir etwas']
+  ];
+  const normalisieren = s => { let t = s; SLANG.forEach(([rx, ers]) => t = t.replace(rx, ers)); return t; };
+
+  /* Kontext-Angebot: Wenn Amira etwas anbietet, versteht sie danach „ja/ne/ok" */
+  function resolveOffer() {
+    const o = ctx.offer; ctx.offer = null;
+    if (o === 'farbpass') return { text: 'Wunderbar — der Farbpass wartet auf ' + (ctx.name ? ctx.name : 'Sie') + '. Acht Fragen, zwei Minuten, und ich kenne Ihre Töne für immer.', action: 'farbpass', chips: ['Und danach?', 'Doch lieber Beratung'] };
+    if (o === 'starter') return { text: 'Sehr gern! Hier ist das Starter-Duo: Premium Jersey (' + fmt(13) + ') als verlässliche Basis und das Bonnet (' + fmt(4.5) + ') für sicheren Halt. Damit gelingt jeder Morgen — versprochen.', products: ['premium-jersey', 'bonnet'], chips: ['In die Tasche legen', 'Welche Farbe für den Anfang?'] };
+    if (o && o.indexOf('zeigen:') === 0) return { text: 'Gern — das hier passt zu unserem Gespräch:', products: o.slice(7).split(','), chips: ['Und die Preise?', 'Etwas anderes zeigen'] };
+    ctx.slot = 'anlass';
+    return { text: 'Schön! Dann verraten Sie mir kurz: Wofür soll es sein — Alltag, Büro, ein Fest oder die warmen Tage?', chips: ['Für den Alltag', 'Fürs Büro', 'Für ein Fest', 'Für den Sommer'] };
+  }
+
   /* Die Intents: [id, regex, handler] — Reihenfolge = Priorität innerhalb gleicher Trefferzahl */
   const INTENTS = [
+
+    /* — Kurzantworten & Umgangston (Konversationsfähigkeit) — */
+    ['ja', /^\s*(ja+|jo+|jop|jup|jaja|gern(e)?|ok(ay)? gern|klar|na klar|sicher|mach( mal)?|los|passt|auf jeden( fall)?|unbedingt|ja bitte|warum nicht|why not)\s*[!.…]*\s*$/i, () => resolveOffer()],
+    ['nein', /^\s*(nein+|ne+|nö+|nee+|lieber nicht|kein interesse|nicht jetzt|später( vielleicht)?|erstmal nicht|lass mal)\s*[!.…]*\s*$/i, () => {
+      ctx.offer = null; ctx.slot = null;
+      return { text: pick(['Völlig in Ordnung — Sie bestimmen das Tempo. Ich bin hier, wenn Sie mich brauchen. Mögen Sie stattdessen einfach ein bisschen stöbern oder plaudern?', 'Kein Problem. Dann anders gefragt: Gibt es etwas, das Sie schon immer über Stoffe oder Farben wissen wollten?']), chips: ['Einfach plaudern', 'Zeig mir den Bestseller', 'Welche Farbe steht mir?'] };
+    }],
+    ['okay', /^\s*(ok(ay)?|alles klar|aha|ach ?so|verstanden|mhm+|hm+|gut|schon gut)\s*[!.…]*\s*$/i, () => ({
+      text: pick(['Gut! Und was darf der nächste Schritt sein — etwas ansehen, etwas fragen, oder finden wir Ihren Farbton?', 'Fein. Womit mache ich Ihnen jetzt eine Freude?']),
+      chips: ['Zeig mir etwas Schönes', 'Farbpass starten', 'Erzähl mir etwas'] })],
+    ['lachen', /^\s*(ha(ha)+|lo+l|hihi+|xd|😂+|🤣+)\s*[!.…]*\s*$/i, () => ({
+      text: pick(['Ihr Lachen ist das schönste Accessoire — das steht übrigens zu jedem unserer Töne. Weiter im Programm?', 'Sehen Sie, so macht Beratung Freude. Was darf ich als Nächstes zeigen?']),
+      chips: ['Zeig mir etwas Schönes', 'Erzähl noch etwas'] })],
+    ['zustimmung_kurz', /^\s*(cool|nice|krass|geil|wow|toll|super|schön|sehr schön|mega|stark|hübsch|love it)\s*[!.…]*\s*$/i, () => ({
+      text: pick(['Nicht wahr? Genau dieses Gefühl wollen wir. Soll ich es Ihnen zur Seite legen — oder zeige ich noch eine Alternative?', 'Das freut mich! Und ehrlich: In echt wirkt es noch schöner als im Bild. Darf ich noch etwas Passendes dazu zeigen?']),
+      chips: ['In die Tasche legen', 'Zeig mir mehr', 'Was passt dazu?'] })],
+    ['unklar', /\b(hä+|versteh (ich )?nich?t|was meinst du|wie jetzt|check ich nicht|nochmal bitte|zu kompliziert)\b/i, () => ({
+      text: 'Entschuldigen Sie — das war zu verschachtelt von mir. Ich versuche es einfacher: Sagen Sie mir in einem Wort, worum es geht — ein Stoff, eine Farbe, die Pflege oder eine Empfehlung — und ich antworte kurz und klar.',
+      chips: ['Empfehlung', 'Farbe', 'Pflege', 'Preise'] })],
+    ['beleidigung', /\b(dumm|blöd|doof|nutzlos|schei+ße|kacke|schrott|kannst (ja )?nichts|bringst nichts)\b/i, () => ({
+      text: 'Das nehme ich mir zu Herzen — ehrlich. Ich bin nicht perfekt, aber ich lerne mit jedem Gespräch. Geben Sie mir noch eine Chance mit einer konkreten Frage? Und wenn Sie lieber mit einem Menschen sprechen: ' + MAIL + ' antwortet innerhalb von 24 Stunden, persönlich.',
+      chips: ['Noch eine Chance: Beratung', 'E-Mail ans Atelier'] })],
+    ['ueber_dich', /\b(erzähl (mal )?(was )?von dir|wie alt bist du|bist du verheiratet|hast du (kinder|familie|hobbys)|wo (wohnst|lebst) du|was machst du so)\b/i, () => ({
+      text: 'Wie charmant, dass Sie fragen! Also: Ich wohne in der Maison — zwischen Stoffballen und Farbkarten, der schönste Ort, den ich kenne. Alter sage ich nicht (eine Dame schweigt), verheiratet bin ich mit meinem Beruf, und mein Hobby ist es, den einen Ton zu finden, der ein Gesicht zum Leuchten bringt. Genug von mir — erzählen Sie: Was führt Sie her?',
+      chips: ['Ich suche etwas', 'Einfach neugierig', 'Welche Farbe steht mir?'] })],
 
     /* — Begrüßung & Smalltalk — */
     ['gruss', /\b(hallo|hi|hey|salam|assalam|selam|guten (tag|morgen|abend)|servus|moin)\b/i, () => {
@@ -324,17 +372,17 @@ window.HIMA_BRAIN = (() => {
         'Herzlich willkommen, schön dass Sie da sind. Ich bin Amira — ich kenne jede Qualität der Maison und plaudere auch gern einfach mit Ihnen.'
       ]);
       const zusatz = pass ? ` Ich sehe, Ihr Farbpass sagt „${pass.welt.name}" — das behalte ich für meine Empfehlungen im Kopf.` : '';
-      return { text: base + zusatz, chips: ['Empfiehl mir etwas', 'Welche Farbe steht mir?', 'Ich trage neu Hijab', 'Einfach plaudern'] };
+      return { text: base + zusatz, offer: 'beratung', chips: ['Empfiehl mir etwas', 'Welche Farbe steht mir?', 'Ich trage neu Hijab', 'Einfach plaudern'] };
     }],
     ['wiegehts', /\b(wie geht('|)s|wie geht es (dir|ihnen)|alles gut( bei dir)?)\b/i, () => ({
       text: pick([
         'Alhamdulillah — mir geht es gut. Ich habe heute schon über Farben philosophiert und Stoffe sortiert, mein liebster Zeitvertreib. Und Ihnen? Suchen Sie etwas Bestimmtes oder schauen wir gemeinsam?',
         'Danke der Nachfrage — bestens! Zwischen Taupe und Salbei kann ein Tag ja nur gut sein. Wie geht es Ihnen? Darf ich Ihnen etwas Schönes zeigen?'
-      ]), chips: ['Zeig mir etwas Schönes', 'Was ist neu?', 'Welcher Stoff passt zu mir?'] })],
+      ]), offer: 'beratung', chips: ['Zeig mir etwas Schönes', 'Was ist neu?', 'Welcher Stoff passt zu mir?'] })],
     ['werbistdu', /\b(wer bist du|bist du (echt|ein mensch|eine ki|ein bot|künstlich)|was bist du|was kannst du)\b/i, () => ({
       text: 'Ganz ehrlich: Ich bin die digitale Beraterin der Maison — kein Mensch, aber mit Herz programmiert. Ich kenne unsere Stoffe bis zur Grammatur, unsere Farben bis zum Unterton, und über Hijab, Stil und den Glauben spreche ich gern und mit Respekt. Alles bleibt dabei auf Ihrem Gerät — ich funktioniere sogar offline. Was ich nicht weiß, sage ich ehrlich — und verbinde Sie mit einem Menschen: ' + MAIL,
       chips: ['Was kannst du alles?', 'Empfiehl mir etwas', 'Wie funktioniert der Farbpass?'] })],
-    ['faehigkeiten', /\b(was kannst du alles|hilf mir|womit kannst du|was weißt du)\b/i, () => ({
+    ['faehigkeiten', /\b(was kannst du( alles| so)?|hilf mir|mir helfen|womit kannst du|was weißt du)\b/i, () => ({
       text: 'Ich bin für drei Dinge da: Erstens Beratung — welcher Stoff, welche Farbe, welcher Stil zu Ihnen passt. Zweitens Wissen — Pflege, Drapierung, Materialkunde, und Fragen rund um Hijab und Glauben beantworte ich einfühlsam und ehrlich. Drittens Gesellschaft — Sie dürfen auch einfach mit mir plaudern. Womit fangen wir an?',
       chips: ['Beratung starten', 'Wie pflege ich meinen Hijab?', 'Warum tragen Frauen Hijab?'] })],
     ['name', /(?:\b[Ii]ch heiße|\b[Mm]ein [Nn]ame ist)\s+([a-zA-ZÄÖÜäöüß][a-zäöüß-]{2,})|\b[Ii]ch bin\s+([A-ZÄÖÜ][a-zäöüß-]{2,})\b(?!\s)/, (m) => {
@@ -423,11 +471,11 @@ window.HIMA_BRAIN = (() => {
           products: pass.welt.produkte, chips: ['Ja, zeig mir passende Stücke', 'Farbpass neu machen', 'Was sollte ich meiden?'] };
       }
       return { text: 'Farbe ist die halbe Eleganz — und sehr persönlich. Die Kurzfassung: Warme Untertöne (goldene Adern, Gold-Schmuck steht Ihnen) leuchten in Creme, Taupe und Olive. Kühle Untertöne (bläuliche Adern, Silber schmeichelt) tragen Grau, Marine und Mauve. Am genauesten wird es mit unserem Farbpass: acht Fragen, zwei Minuten — und ich merke mir Ihr Ergebnis für jede weitere Beratung.',
-        action: 'farbpass', chips: ['Farbpass starten', 'Steht mir Salbei?', 'Zeig mir die Farbwelten'] };
+        action: 'farbpass', offer: 'farbpass', chips: ['Farbpass starten', 'Steht mir Salbei?', 'Zeig mir die Farbwelten'] };
     }],
     ['farbe_meiden', /\b(meiden|steht mir nicht|vermeiden|welche farbe nicht)\b/i, () => {
       const pass = fpLaden();
-      if (!pass) return { text: 'Ohne Ihren Farbpass mag ich nicht raten — „Meiden“ ist eine sehr persönliche Angelegenheit. Zwei Minuten, acht Fragen, und ich sage es Ihnen präzise. Einverstanden?', action: 'farbpass', chips: ['Farbpass starten'] };
+      if (!pass) return { text: 'Ohne Ihren Farbpass mag ich nicht raten — „Meiden“ ist eine sehr persönliche Angelegenheit. Zwei Minuten, acht Fragen, und ich sage es Ihnen präzise. Einverstanden?', action: 'farbpass', offer: 'farbpass', chips: ['Farbpass starten'] };
       const m = pass.welt.meiden.map(([f, why]) => `${FARBEN[f].name} — ${why}`).join('. ');
       return { text: `Ehrliche Antwort für „${pass.welt.name}": ${m}. Aber merken Sie sich: Das sind Empfehlungen, keine Verbote — mit dem richtigen Ton am Gesicht ist fast alles tragbar.`, chips: ['Was steht mir stattdessen?', 'Zeig mir passende Stücke'] };
     }],
@@ -493,7 +541,7 @@ window.HIMA_BRAIN = (() => {
       chips: ['Warum tragen Frauen Hijab?', 'Zeig mir eure ruhigsten Töne'] })],
     ['islam_anfang', /\b(anfangen|beginnen|neu (dabei|hijabi)|neu hijab|hijab neu|trage neu|zum ersten mal|erste[nr]? hijab|hijab tragen möchte|überlege.{0,20}hijab)\b/i, () => ({
       text: 'Wie schön, dass Sie diesen Schritt gehen — masha\'Allah. Erlauben Sie mir drei ehrliche Ratschläge zum Anfang: 1) Machen Sie es sich leicht: Ein formstabiler Jersey verzeiht alles und hält ohne Kampf — perfekt für die ersten Wochen. 2) Ein Bonnet darunter nimmt die Sorge vor dem Verrutschen. 3) Seien Sie sanft mit sich: Es ist eine Reise, kein Wettbewerb — und niemand bindet am ersten Tag perfekt. Ihre Fragen dürfen Sie mir alle stellen, es gibt keine dummen. Soll ich Ihnen ein Starter-Duo zusammenstellen?',
-      products: ['premium-jersey', 'bonnet'], chips: ['Ja, gern das Starter-Duo', 'Wie binde ich am einfachsten?', 'Welche Farbe für den Anfang?'] })],
+      products: ['premium-jersey', 'bonnet'], offer: 'starter', chips: ['Ja, gern das Starter-Duo', 'Wie binde ich am einfachsten?', 'Welche Farbe für den Anfang?'] })],
     ['islam_schwierig', /\b(schwer|schwierig|zweifel|angst|traue mich nicht|blicke|kommentare|diskriminier|gemobbt|abnehmen|ablegen)\b/i, () => ({
       text: 'Danke, dass Sie das mit mir teilen — das ist nicht selbstverständlich. Was Sie fühlen, kennen viele Frauen, und es macht Sie weder schwächer noch weniger gläubig. Erlauben Sie mir zwei Gedanken: Ihr Weg gehört Ihnen — er wird nicht an einem einzelnen Tag gemessen. Und: Umgeben Sie sich mit Menschen, die Sie tragen — eine Gemeinschaft, eine Freundin, Ihre Moschee. Für die schweren Fragen sind Seelsorge und Gelehrte die richtigen Begleiter; ich bin nur eine Stimme für den Alltag. Aber eines darf ich sagen: Sie sind mutig. Und Sie sind nicht allein.',
       chips: ['Danke, Amira', 'Etwas Leichtes: berate mich', 'Was stärkt das Selbstbewusstsein?'] })],
@@ -544,13 +592,13 @@ window.HIMA_BRAIN = (() => {
       chips: ['Wie bestelle ich genau?', 'Zeig mir den Bestseller'] })],
     ['kollektion', /\b(kollektion|sortiment|alle (produkte|stoffe|tücher)|übersicht|zeig mir alles)\b/i, () => ({
       text: 'Unsere Kollektion ist bewusst kuratiert — vier Welten statt endloser Regale: die Jersey-Familie für den Alltag (4 Charaktere), die Bamboo-Linie für Leichtigkeit, die feinen Stoffe Medina und Chiffon für besondere Momente, und die Basis-Accessoires Bonnet und Nadeln. Neun Töne, jede Qualität von Hand geprüft. Womit darf ich beginnen?',
-      products: ['premium-bamboo', 'premium-jersey'], chips: ['Die Jersey-Familie', 'Die Bamboo-Linie', 'Chiffon & Medina'] })],
+      products: ['premium-bamboo', 'premium-jersey'], offer: 'beratung', chips: ['Die Jersey-Familie', 'Die Bamboo-Linie', 'Chiffon & Medina'] })],
     ['herkunft', /\b(woher|herkunft|produziert|hergestellt|fabrik|lieferant|made in)\b/i, () => ({
       text: 'Eine faire Frage, die eine ehrliche Antwort verdient: HIMA entwirft und kuratiert im Rheinland; gefertigt wird bei ausgewählten Partnerbetrieben, deren Qualitäten wir Charge für Charge selbst prüfen — Waschtest, Knittertest, Lichtechtheit, Maßkontrolle. Wir nennen Stoffe beim ehrlichen Namen (unsere „Medina Seide" ist z. B. keine Maulbeerseide) und beantworten Detailfragen zur Lieferkette persönlich: ' + MAIL,
       chips: ['Wie prüft ihr Qualität?', 'Erzähl mir von HIMA'] })],
     ['farbpalette', /\b(andere farben|alle farben|welche farben gibt|farbpalette|neun töne|farbwelten)\b/i, () => ({
       text: 'Unsere Palette — neun Töne, bewusst ruhig: Salbei, Creme, Grau, Marine, Mauve, Olive, Rosé, Taupe und Schwarz. Jeder hat seinen Charakter — fragen Sie mich zu jedem einzelnen („Steht mir Salbei?"), oder wir finden mit dem Farbpass systematisch heraus, welche Ihre sind.',
-      action: 'farbpass', chips: ['Steht mir Salbei?', 'Steht mir Marine?', 'Farbpass starten'] })],
+      action: 'farbpass', offer: 'farbpass', chips: ['Steht mir Salbei?', 'Steht mir Marine?', 'Farbpass starten'] })],
 
     /* — Farbpass-Bezug — */
     ['farbpass_info', /\b(farbpass|farbquiz|dein ton|farbanalyse|farbwelt)\b/i, () => {
@@ -558,7 +606,7 @@ window.HIMA_BRAIN = (() => {
       if (pass) return { text: `Ihr Farbpass liegt vor: „${pass.welt.name}" (${pass.welt.sub}), Kontrast ${pass.kontrast}, erstellt am ${pass.datum}. ${pass.welt.stil} Möchten Sie ihn neu machen oder passende Stücke sehen?`,
         products: pass.welt.produkte, chips: ['Passende Stücke zeigen', 'Farbpass neu machen', 'Was sollte ich meiden?'] };
       return { text: 'Der Farbpass ist unsere Farbanalyse: acht Fragen zu Unterton, Tiefe und Kontrast — daraus bestimme ich Ihre Farbwelt mit Haupttönen, Begleitern und ehrlichen „Lieber-nicht"-Hinweisen. Ihr Ergebnis bleibt auf Ihrem Gerät, und ich beziehe es in jede Beratung ein. Zwei Minuten, die Ihre Garderobe verändern.',
-        action: 'farbpass', chips: ['Farbpass starten', 'Welche Farbwelten gibt es?'] };
+        action: 'farbpass', offer: 'farbpass', chips: ['Farbpass starten', 'Welche Farbwelten gibt es?'] };
     }],
 
     /* — Sicherheit / Grenzen — */
@@ -582,7 +630,7 @@ window.HIMA_BRAIN = (() => {
 
   function antworten(frage) {
     ctx.turns++;
-    const f = (frage || '').trim();
+    const f = normalisieren((frage || '').trim());
     if (!f) return { text: 'Ich höre zu — fragen Sie mich einfach.', chips: ['Beratung starten', 'Farbpass starten'] };
 
     // 1) Offener Slot (Anlass-Nachfrage)?
@@ -611,25 +659,37 @@ window.HIMA_BRAIN = (() => {
     if (best) {
       ctx.lastTopic = best.id;
       const reply = best.handler(best.m) || {};
+      if (!['ja', 'nein', 'okay', 'lachen', 'zustimmung_kurz'].includes(best.id)) ctx.offer = reply.offer || null;
+      if (reply.products) ctx.lastProducts = reply.products;
+      ctx.fallbacks = 0;
       remember();
       return reply;
     }
 
-    // 3) Fallback — ehrlich, aber immer mit offener Tür
+    // 3) Fallback — gesprächig statt abweisend: kurz ehrlich sein, Kontext nutzen, Frage zurückgeben
+    ctx.fallbacks = (ctx.fallbacks || 0) + 1;
+    if (ctx.fallbacks >= 3) {
+      ctx.fallbacks = 0;
+      return { text: 'Ich merke, ich verstehe Sie gerade nicht so, wie Sie es verdienen — das ärgert mich selbst. Zwei Wege: Formulieren Sie es mit einem Stichwort wie „Empfehlung", „Farbe" oder „Pflege" — oder schreiben Sie dem Atelier direkt: ' + MAIL + '. Dort antwortet ein Mensch, persönlich und innerhalb von 24 Stunden.', action: 'kontakt', chips: ['Empfehlung', 'Farbe', 'Pflege'] };
+    }
+    const TOPIC_NAME = { bamboo: 'Bamboo', jersey: 'unsere Jerseys', chiffon: 'Chiffon', medina: 'Medina', farbe_beratung: 'Ihre Farben', pflege: 'die Pflege', binden: 'das Binden', preis: 'die Preise', marke: 'die Maison' };
+    const anknuepfung = ctx.lastTopic && TOPIC_NAME[ctx.lastTopic] ? ' Eben sprachen wir über ' + TOPIC_NAME[ctx.lastTopic] + ' — soll ich da weitermachen?' : '';
+    ctx.offer = 'beratung';
     return {
       text: pick([
-        'Da bin ich ehrlich: Das weiß ich (noch) nicht sicher — und raten wäre respektlos. Meine Stärken: Stoffe, Farben, Styling, Pflege und alles rund um Hijab und die Maison. Für alles andere ist das Atelier da: ' + MAIL + '. Womit darf ich glänzen?',
-        'Hm — das liegt außerhalb meines Ateliers. Aber fragen Sie mich nach Stoffen, Farben, Pflege, Styling oder dem Weg zum Hijab, und ich bin ganz in meinem Element. Oder mögen Sie eine Empfehlung?'
+        'Da muss ich passen — so gut kenne ich mich nur mit Stoffen, Farben, Stil und allem rund um den Hijab aus.' + anknuepfung + ' Oder erzählen Sie mir einfach, wonach Ihnen heute ist — ich finde bestimmt etwas.',
+        'Hm, da bin ich ehrlich: Das liegt außerhalb meines Ateliers.' + anknuepfung + ' Aber sagen Sie mir, was Sie gerade beschäftigt — Alltag, ein Anlass, eine Farbe? — und ich bin ganz in meinem Element.',
+        'Das kann ich nicht seriös beantworten — und raten wäre respektlos.' + anknuepfung + ' Womit darf ich Ihnen stattdessen eine Freude machen?'
       ]),
-      chips: ['Empfiehl mir etwas', 'Welche Farbe steht mir?', 'Wie pflege ich meinen Hijab?', 'Erzähl mir von HIMA']
+      chips: ['Empfiehl mir etwas', 'Welche Farbe steht mir?', 'Einfach plaudern', 'Erzähl mir von HIMA']
     };
   }
 
   const START_CHIPS = ['Empfiehl mir etwas', 'Welche Farbe steht mir?', 'Ich trage neu Hijab', 'Wie pflege ich meinen Hijab?'];
   function begruessung() {
     const pass = fpLaden();
-    if (pass) return { text: `As-salamu alaykum, willkommen zurück! Ihr Farbpass („${pass.welt.name}") liegt griffbereit — soll ich Ihnen etwas Passendes zeigen, oder haben Sie eine Frage?`, chips: ['Passendes zeigen', 'Neue Frage', 'Farbpass ansehen'] };
-    return { text: 'As-salamu alaykum — ich bin Amira, die Beraterin der Maison. Ich kenne jeden Stoff, jede Farbe und begleite Sie gern: bei der Auswahl, bei der Pflege, bei den ersten Schritten mit Hijab — oder einfach zum Plaudern. Was führt Sie heute her?', chips: START_CHIPS };
+    if (pass) return { text: `As-salamu alaykum, willkommen zurück! Ihr Farbpass („${pass.welt.name}") liegt griffbereit — soll ich Ihnen etwas Passendes zeigen, oder haben Sie eine Frage?`, offer: 'zeigen:' + pass.welt.produkte.join(','), chips: ['Passendes zeigen', 'Neue Frage', 'Farbpass ansehen'] };
+    return { text: 'As-salamu alaykum — ich bin Amira, die Beraterin der Maison. Ich kenne jeden Stoff, jede Farbe und begleite Sie gern: bei der Auswahl, bei der Pflege, bei den ersten Schritten mit Hijab — oder einfach zum Plaudern. Was führt Sie heute her?', offer: 'beratung', chips: START_CHIPS };
   }
 
   return { KATALOG, byId, fmt, FARBEN, MAIL,
